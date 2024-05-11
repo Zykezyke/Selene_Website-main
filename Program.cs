@@ -14,7 +14,7 @@ builder.Services.AddControllersWithViews();
 
 //DbContext for Identity
 builder.Services.AddDbContext<LogAppDbContext>(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
     );
 
 builder.Services.AddIdentity<RegUser, IdentityRole>(options =>
