@@ -75,54 +75,20 @@ namespace SELENE_STUDIO.Data
             var admin = new RegUser
             {
                 Id = "1",
-                UserName = "admin@gmail.com",
-                NormalizedUserName = "ADMIN@GMAIL.COM",
-                Email = "admin@gmail.com",
-                NormalizedEmail = "ADMIN@GMAIL.COM",
+                UserName = "seleneprintingstudio@gmail.com",
+                NormalizedUserName = "SELENEPRINTINGSTUDIO@GMAIL.COM",
+                Email = "seleneprintingstudio@gmail.com",
+                NormalizedEmail = "SELENEPRINTINGSTUDIO@GMAIL.COM",
                 EmailConfirmed = true,
                 Role = "Admin",
                 LockoutEnabled = true,
             };
 
-            var user = new RegUser
-            {
-                Id = "2",
-                UserName = "user@gmail.com",
-                NormalizedUserName = "USER@GMAIL.COM",
-                Email = "user@gmail.com",
-                NormalizedEmail = "USER@GMAIL.COM",
-                FirstName = "Test",
-                LastName = "User",
-                Address = "Test",
-                PhoneNumber = "123456789",
-                EmailConfirmed = true,
-                LockoutEnabled = true,
-
-            };
-
             var passwordHasher = new PasswordHasher<RegUser>();
-            admin.PasswordHash = passwordHasher.HashPassword(admin, "admin123");
-            user.PasswordHash = passwordHasher.HashPassword(user, "user1234");
+            admin.PasswordHash = passwordHasher.HashPassword(admin, "Selene@Adm1n");
 
             modelBuilder.Entity<RegUser>().HasData(admin);
-            modelBuilder.Entity<RegUser>().HasData(user);
 
-            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
-            {
-                Id = "2",
-                Name = "User",
-                NormalizedName = "USER"
-            });
-
-
-            // Assign user role to user
-            modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
-            {
-                RoleId = "2", // Assuming the role ID for "User" is "2"
-                UserId = "2" // Assuming the user ID for "user@gmail.com" is "2"
-            });
-
-            // Assign admin role to admin user
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
             {
                 RoleId = "1",
@@ -361,7 +327,7 @@ namespace SELENE_STUDIO.Data
             {
                 AdminId = 1,
                 Name = "Administrator",
-                Email = "admin@gmail.com"
+                Email = "seleneprintingstudio@gmail.com"
             });
         }
         private string GetEnumDisplayName(Enum value)
