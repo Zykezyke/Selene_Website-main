@@ -107,7 +107,7 @@ namespace SELENE_STUDIO.Controllers
                     if (result.Succeeded)
                     {
                         // Record session start time
-                        user.SessionStartTime = DateTime.Now;
+                        user.SessionStartTime = DateTime.UtcNow;
                         await _userManager.UpdateAsync(user);
 
                         if (await _userManager.IsInRoleAsync(user, "Admin"))
@@ -163,7 +163,7 @@ namespace SELENE_STUDIO.Controllers
             if (user != null)
             {
                 // Record session end time
-                user.SessionEndTime = DateTime.Now;
+                user.SessionEndTime = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
             }
 
