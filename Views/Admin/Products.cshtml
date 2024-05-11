@@ -1,0 +1,132 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<script language='javascript'>
+        <!--
+    function beforeDelete() { return (confirm('Are you sure you want to delete the selected item?')); }
+    //-->
+</script>
+
+@model IEnumerable<Product>;
+<div class="container">
+   
+    <div class="mt-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="large-text mt-5 fw-bold pb-5">
+                <a href="@Url.Action("Index", "Admin")" class="text-dark text-decoration-none">
+                    <i class="fa-solid fa-circle-chevron-left"></i>
+                </a>
+                &nbsp;&nbsp;&nbsp;Products&nbsp;&nbsp;&nbsp;
+                <a asp-controller="Admin" asp-action="AddProduct" class="text-decoration-none">
+                    <button type="button" class="btn btn-outline-secondary btn-custom">ADD PRODUCT</button>
+                </a>
+            </h1>
+        </div>
+        <table class="order-table shadow">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Image</th>
+                    <th scope="col" class="text-center">ID</th>
+                    <th scope="col" class="text-center">Product Name</th>
+                    <th scope="col" class="text-center">Product Category</th>
+                    <th scope="col" class="text-center">Available Sizes</th>
+                    <th scope="col" class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @if (product.ImagePaths != null && product.ImagePaths.Any())
+                                {
+                                    <img width="48" height="48" src="@Url.Content(product.ImagePaths.First())" alt="Product Image" />
+                                }
+                                else
+                                {
+                                    <span>No image available</span>
+                                }
+                            </td>
+                            <td class="pt-3 text-center">@product.ProductID</td>
+                            <td class="pt-3 text-center">@product.ProductName</td>
+                            <td class="pt-3 text-center">@product.ProductCategory</td>
+                            <td class="pt-3 text-center">
+                                @foreach (var size in product.GetAvailableSizes())
+                                {
+                                    // Get the additional price for the current size
+                                    var additionalPrice = product.AdditionalPrices.FirstOrDefault(ap => ap.Size == size)?.Price;
+
+                                    // Check if the additional price is not null and greater than 0
+                                    if (additionalPrice.HasValue && additionalPrice.Value > 0)
+                                    {
+                                        <span class="badge bg-secondary">@size: P @additionalPrice</span>
+                                    }
+                                    else
+                                    {
+                                        // If the additional price is null or 0, display just the size
+                                        <span class="badge bg-secondary">@size</span>
+                                    }
+                                }
+                            </td>
+
+                            <td class="pt-3 text-center">
+                                
+                                <a asp-controller="Admin" asp-action="EditProduct" asp-route-id="@product.ProductID" class="text-decoration-none w-25 pb-5">
+                                    <button type="button" class="btn btn-outline-dark btn-edit w-100 fw-bold">Edit</button>
+                                </a>                    
+                      
+                                <form method="post" asp-controller="Admin" asp-action="ToggleProductVisibility">
+                                    <a class="text-decoration-none w-25 pb-5">
+                                        <input type="hidden" value="@product.ProductID" name="id" />
+                                        <button type="submit" name="submit" class="btn btn-outline-dark btn-toggle w-100">
+                                            @if (product.isHidden)
+                                            {
+                                                <span><strong>Show</strong></span>
+                                            }
+                                            else
+                                            {
+                                                <span><strong>Hide</strong></span>
+                                            }
+                                        </button>
+                                    </a>
+                                </form>
+
+                                <form method="post" asp-controller="Admin" asp-action="DeleteProduct">
+                                    <a class="text-decoration-none w-25 pb-5">
+                                        <input type="hidden" value="@product.ProductID" name="id" />
+                                        <button type="submit" name="submit" class="btn btn-outline-dark btn-delete w-100 fw-bold" onclick="return(beforeDelete())">Delete</button>
+                                    </a>
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                    <nav aria-label="Page navigation" class="page-nav">
+                        <ul class="pagination justify-content-center">
+                            
+                                @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("Products", "Admin", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                                    </li>
+                                }
+                            
+                        </ul>
+                    </nav>
+                    }
+                }
+                else
+                {
+                    <p>No products available.</p>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    </div>

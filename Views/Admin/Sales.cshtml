@@ -1,0 +1,317 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model SELENE_STUDIO.ViewModels.AdminDashboardViewModel
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<div class="container">
+    <h1 class="large-text mt-5 fw-bold pb-5">
+        &nbsp;&nbsp;&nbsp
+        <a href="@Url.Action("Index", "Admin")" class="text-dark text-decoration-none">
+            <i class="fa-solid fa-circle-chevron-left"></i>
+        </a>
+        &nbsp;&nbsp;&nbsp;Sales Report&nbsp;&nbsp;&nbsp;
+    </h1>
+    <div class="container">
+        <div class="row text-center">
+            <div class="col">
+                <a class="btn btn-outline-secondary btn-save fw-bold" href="@Url.Action("DownloadOrders", "Admin")">Download Orders</a>
+            </div>
+            <div class="col">
+                <a class="btn btn-outline-secondary btn-save fw-bold" href="@Url.Action("DownloadSalesPerProduct", "Admin")">Download Sales Per Product</a>
+            </div>
+            <div class="col">
+                <a class="btn btn-outline-secondary btn-save fw-bold" href="@Url.Action("DownloadTotalSalesPerMonth", "Admin")">Download Total Sales Per Month</a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div class="row justify-content-md-center mt-5">
+
+            <div class="col-3">
+                <div class="card-sales" style="background-color: #F67C4A">
+                    <div class="card-body">
+                        <p class="text-center mt-2 fw-bold text-light">TOTAL PRODUCTS</p>
+                        <p class="large-text text-center text-light my-5">@Model.TotalProducts</p>
+                    </div>
+                </div>              
+            </div>
+
+            <div class="col-3">
+                <div class="card-sales" style="background-color:#90A6BB">
+                    <div class="card-body">
+                        <p class="text-center mt-2 fw-bold text-light">PENDING ORDERS</p>
+                        <p class="large-text text-center text-light my-5">@Model.TotalPendingOrders</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card-sales" style="background-color:#EBB1A6">
+                    <div class="card-body">
+                        <p class="text-center mt-2 fw-bold text-light">ITEM SOLD</p>
+                        <p class="large-text text-center text-light my-5">@Model.TotalProductsSold</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="card-sales" style="background-color:#F6D882">
+                    <div class="card-body">
+                        <p class="text-center mt-2 fw-bold text-light">TOTAL SOLD</p>
+                        <p class="large-text text-center text-light my-5">₱ @Model.TotalPriceSoldOfEachProduct.Sum(item => item.Value)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mt-5">
+
+                <h3 class="large-text text-center mt-5 fw-bold pb-5">Select Date Range:</h3>
+                <center>
+                <div class="input-daterange input-group" id="dateRangePicker">
+                    <input type="text"  name="start" id="startDate" />
+                    <div class="input-group-addon text-dark">to</div>
+                    <input type="text"  name="end" id="endDate" />
+                </div>
+                </center>
+
+                <div class="col-12 mt-5">
+                    <center>
+                        @if (Model.TotalPriceSoldOfEachProduct != null && Model.TotalPriceSoldOfEachProduct.Any())
+                        {
+
+                            <canvas id="productSalesChart" style="width: 300px; height: 300px;"></canvas>
+                        }
+                        else
+                        {
+                            <p>No data available for the chart.</p>
+                        }
+                    </center>
+                </div>
+                <div class="col-12 mt-5">
+                    <center>
+                    @if (Model.OverallSalesPerMonth != null && Model.OverallSalesPerMonth.Any())
+                    {
+                        <canvas id="overallSalesChart" style="width: 100%; height: 250px;"></canvas>
+                    }
+                    else
+                    {
+                        <p>No data available for the chart.</p>
+                    }
+                    </center>
+                </div>
+            
+
+            </div>
+
+
+           
+    </div>
+</div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Ensure that Chart.js is loaded before using it -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let accountBadge = null; // Initialize variable to store the account badge
+
+        function getNotifications() {
+            console.log('Fetching notifications...');
+            fetch('/Admin/GetNotifications')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data); // Log received data for debugging
+                    const messagesBadge = document.getElementById('messagesBadge');
+                    console.log('Messages badge element:', messagesBadge);
+                    messagesBadge.innerHTML = data.newMessagesCount > 0 ? '<span class="badge bg-danger">' + data.newMessagesCount + '</span>' : '';
+                    // Update orders indicator
+                    const ordersBadge = document.getElementById('ordersBadge');
+                    console.log('Orders badge element:', ordersBadge);
+                    ordersBadge.innerHTML = data.newOrdersCount > 0 ? '<span class="badge bg-danger">' + data.newOrdersCount + '</span>' : '';
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Poll for updates every 60 seconds
+        setInterval(getNotifications, 5000);
+
+        // Initial call to get notifications on page load
+        getNotifications();
+    });
+
+</script>
+<script>
+    $(document).ready(function () {
+        let myPieChart = null;
+        let myBarChart = null;
+
+        // Set default start and end dates to cover the entire year
+        const defaultStartDate = new Date(new Date().getFullYear(), 0, 1); // January 1st of the current year
+        const defaultEndDate = new Date(new Date().getFullYear(), 11, 31); // December 31st of the current year
+
+        $('#dateRangePicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+
+        // Set default dates in the input boxes
+        $('#startDate').datepicker('setDate', defaultStartDate);
+        $('#endDate').datepicker('setDate', defaultEndDate);
+
+        $('#dateRangePicker').on('changeDate', function (e) {
+            var startDate = $('#startDate').datepicker('getDate');
+            var endDate = $('#endDate').datepicker('getDate');
+
+            updateCharts(startDate, endDate);
+        });
+
+        updateCharts(defaultStartDate, defaultEndDate);
+
+        function updateCharts(startDate, endDate) {
+            if (!startDate || !endDate) {
+                startDate = defaultStartDate;
+                endDate = defaultEndDate;
+            }
+
+            if (endDate < startDate) {
+                alert("End date cannot be before start date.");
+                return;
+            }
+
+            if (myPieChart) {
+                myPieChart.destroy();
+            }
+            if (myBarChart) {
+                myBarChart.destroy();
+            }
+
+            $.ajax({
+                url: '/Admin/RenderChart',
+                type: 'GET',
+                data: {
+                    startDate: startDate.toISOString(),
+                    endDate: endDate.toISOString()
+                },
+                success: function (data) {
+                    var totalPriceSoldOfEachProduct = data.totalPriceSoldOfEachProduct;
+                    var overallSalesData = data.overallSalesPerMonth;
+
+                    if ($.isEmptyObject(totalPriceSoldOfEachProduct) && $.isEmptyObject(overallSalesData)) {
+                        $('#productSalesChart').html('<p>No data available for this period.</p>');
+                        $('#overallSalesChart').html('<p>No data available for this period.</p>');
+                    } else {
+                        createPieChart(totalPriceSoldOfEachProduct);
+                        createBarChart(overallSalesData);
+                    }
+                },
+                error: function (error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+
+
+        // Function to create pie chart for product sales
+        function createPieChart(totalPriceSoldOfEachProduct) {
+            var productIDs = Object.keys(totalPriceSoldOfEachProduct);
+            var totalPriceSold = Object.values(totalPriceSoldOfEachProduct);
+
+            // Fetch product names from the server
+            $.ajax({
+                url: '/Admin/GetProductNames',
+                type: 'POST',
+                data: { productIds: productIDs },
+                success: function (productNames) {
+                    var productLabels = productNames;
+
+                    var ctxPie = document.getElementById('productSalesChart').getContext('2d');
+                    myPieChart = new Chart(ctxPie, {
+                        type: 'pie',
+                        data: {
+                            labels: productLabels,
+                            datasets: [{
+                                label: 'Total Price Sold',
+                                data: totalPriceSold,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            maintainAspectRatio: true,
+                            aspectRatio: 1
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.error("Error:", error);
+                }
+            });
+        }
+
+        // Function to create bar chart for overall sales per month
+        function createBarChart(overallSalesData) {
+            var months = Object.keys(overallSalesData).sort(); // Sort months in ascending order
+            var sales = months.map(month => overallSalesData[month]);
+
+            var ctxBar = document.getElementById('overallSalesChart').getContext('2d');
+            myBarChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Overall Sales Per Month',
+                        data: sales,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+
+        // Call the updateCharts function initially with default date range
+        updateCharts(null, null); // Initially, let's not pass any dates
+    });
+
+</script>
+
+
+
+
+
+
+
+

@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SELENE_STUDIO.Models.UserCart">
+    <Position X="5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAAAAAAAAAAAACAAAAAAAAAAAQAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>Models\UserCart.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Customer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.Product">
+    <Position X="11.75" Y="4.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="SELENE_STUDIO.Models.Product.AdditionalPrice">
+        <TypeIdentifier>
+          <NewMemberFileName>Models\Product.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>EAAQFAAAAAAABAAAAAACAAABACAAAAAAAAQEAAIIEAA=</HashCode>
+      <FileName>Models\Product.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ProductCategory" />
+      <Property Name="ProductSize" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.Order">
+    <Position X="9" Y="7.75" Width="1.5" />
+    <AssociationLine Name="OrderStatus" Type="SELENE_STUDIO.Models.OrderStatus" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="8.469" />
+        <Point X="7.021" Y="8.469" Type="JumpStart" />
+        <Point X="6.854" Y="8.469" Type="JumpEnd" />
+        <Point X="5.646" Y="8.469" Type="JumpStart" />
+        <Point X="5.479" Y="8.469" Type="JumpEnd" />
+        <Point X="2.062" Y="8.469" />
+        <Point X="2.062" Y="6.816" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="OldOrderStatus" Type="SELENE_STUDIO.Models.OrderStatus" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="8.078" />
+        <Point X="7.021" Y="8.078" Type="JumpStart" />
+        <Point X="6.854" Y="8.078" Type="JumpEnd" />
+        <Point X="5.646" Y="8.078" Type="JumpStart" />
+        <Point X="5.479" Y="8.078" Type="JumpEnd" />
+        <Point X="3.375" Y="8.078" />
+        <Point X="3.375" Y="6.816" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="PaymentStatus" Type="SELENE_STUDIO.Models.PaymentStatus" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="9.462" />
+        <Point X="5.562" Y="9.462" />
+        <Point X="5.562" Y="6.739" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="OldPaymentStatus" Type="SELENE_STUDIO.Models.PaymentStatus" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="8.965" />
+        <Point X="6.938" Y="8.965" />
+        <Point X="6.938" Y="6.739" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.456" Y="0.045" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="Customer" Type="SELENE_STUDIO.Data.RegUser">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.567" Y="0.073" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>ABEBAAIACAACAAAAACAAEAAAAAAAQQAhAAAAAQAAAAQ=</HashCode>
+      <FileName>Models\Order.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Customer" />
+      <Property Name="OrderStatus" />
+      <Property Name="PaymentStatus" />
+      <Property Name="OldPaymentStatus" />
+      <Property Name="OldOrderStatus" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.Message">
+    <Position X="3.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAgAAAAAAAAAAEAAAABAFAAIEAAAABAAoAAA=</HashCode>
+      <FileName>Models\Message.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Conversation" />
+      <Property Name="Sender" />
+      <Property Name="Receiver" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.Feedback">
+    <Position X="11.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAADAACAAgAAAAAAAAAAAAgAAAAAAAEBAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Feedback.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Product" />
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.Conversation">
+    <Position X="8.75" Y="5.25" Width="1.5" />
+    <AssociationLine Name="Initiator" Type="SELENE_STUDIO.Data.RegUser">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.255" Y="0.1" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="Receiver" Type="SELENE_STUDIO.Data.RegUser">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.272" Y="0.106" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEEAAAAAAABAEAAAAAAAABQAgAAA=</HashCode>
+      <FileName>Models\Conversation.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Initiator" />
+      <Property Name="Receiver" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Models.CartProduct">
+    <Position X="14.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAACAAAAAAAAAAAAAAAAAAAAAQAAUAAQAAAAgAAAAAA=</HashCode>
+      <FileName>Models\CartProduct.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Product" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="SELENE_STUDIO.Data.RegUser">
+    <Position X="9" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAGEAAAAAAAAAEAAAIAAACAAAAAACCAAAAAAAAAg=</HashCode>
+      <FileName>Data\RegUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="SELENE_STUDIO.Models.Size">
+    <Position X="14.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAQAAAAAAAAAAAAQEAoABAAAQABABAAAEAIEAAAA=</HashCode>
+      <FileName>Models\Product.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SELENE_STUDIO.Models.PaymentStatus">
+    <Position X="5.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAIAAAAAAAAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Models\PaymentStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SELENE_STUDIO.Models.OrderStatus">
+    <Position X="2" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAACAAAAoAAAAAAAACAAAAAAAAAAAAIAAAAAA=</HashCode>
+      <FileName>Models\OrderStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="SELENE_STUDIO.Models.Category">
+    <Position X="3.25" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAAAAEAAAAAAgAAAAAAAAAAAAIAAAAAEAA=</HashCode>
+      <FileName>Models\Product.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

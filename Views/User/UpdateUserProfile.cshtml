@@ -1,0 +1,109 @@
+﻿@model SELENE_STUDIO.ViewModels.UpdateViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<br />
+
+<div class="container">
+    <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">User Profile</h1>
+</div>
+
+<div class="container">
+    <div>
+        <div class="px-5 py-2 mb-5 pb-5">
+            <div class="mt-3">
+                <div class="border-2 border-dark">
+                    <form asp-action="UpdateUserProfile" asp-controller="User" method="post">
+                        <div class="row shadow">
+                            <div class="col order-details-bar">
+                                <p class="fw-bold">Account Details</p>
+                            </div>
+                        </div>
+                        <div class="row shadow">
+                            <div class="order-details">
+                                <br />
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">First Name:</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <input asp-for="FirstName" type="text" class="form-control" name="FirstName" value="@Model.FirstName" oninput="this.value = this.value.replace(/[^A-Za-z\s'-]+/g, '')" required/>
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Last Name:</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <input asp-for="LastName" type="text" class="form-control" name="LastName" value="@Model.LastName" oninput="this.value = this.value.replace(/[^A-Za-z\s'-]+/g, '')" required/>
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <p class="mb-0">Mobile Number:</p>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <input asp-for="Contact" type="tel" class="form-control" name="Contact" value="@Model.Contact" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required/>
+                                    <span asp-validation-for="Contact" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <hr />
+                                <div>
+                                    <div class="order-details">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Home Address:</p>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <input asp-for="Address" type="text" class="form-control" name="Address" value="@Model.Address" required/>
+                                            <span asp-validation-for="Address" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Postal Code:</p>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <input asp-for="PostalCode" type="tel" class="form-control" name="PostalCode" value="@Model.PostalCode" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required/>
+                                            <span asp-validation-for="PostalCode" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                    </div>
+                                </div
+                                <div>
+                                    <div class="order-details">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <p class="mb-0">Email:</p>
+                                            </div>
+                                            <div class="col-sm-9 pb-3">
+                                                <input asp-for="Email" type="email" class="form-control" name="Email" value="@Model.Email" required/>
+                                            <span asp-validation-for="Email" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="pr-3 pt-3">
+                                    <button type="submit" class="hero2-btn btn-primary">Save</button>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+

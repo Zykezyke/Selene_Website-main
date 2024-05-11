@@ -1,0 +1,248 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model UserCart
+@{
+    decimal total = 0;
+    foreach (var product in Model.Products)
+    {
+        var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+
+        total +=  additionalPrice * product.Quantity;
+    }
+}    
+<br />
+<br />
+<div class="container ">
+    <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">Your Cart</h1>
+    <div>
+        <h5>Instructions:</h5>
+        <ul>
+            <li>Provide any necessary instructions or information here.</li>
+            <li>After proceeding from this page, your order will be in Order History.</li>
+            <li>You will be notified of any changes to your order.</li>
+            <li>Payment details will be displayed once the owner has accepted the order. </li>
+            <li>Note that only GCash and PayMaya are the only payment methods accepted.</li>
+            <li>Please upload proof of payment within 24 hours once your order is accepted.</li>
+        </ul>
+    </div>
+    <div class="small-container cart-page shadow">
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+            @{
+                if (Model.Products.Count == 0)
+                {
+                    <h1 style="text-align: center;"> Your Cart is Empty! </h1>
+                }
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td>
+                            <div class="cart-info">
+                                <a asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.Product.ProductID">
+                                    @if (!string.IsNullOrEmpty(product.CustomImagePath))
+                                    {
+                                        <img src="@product.CustomImagePath" alt="custom-product">
+                                    }
+                                    else if (product.Product.ImagePaths != null && product.Product.ImagePaths.Any())
+                                    {
+                                        <img src="@product.Product.ImagePaths.First()" alt="product">
+                                    }
+                                    else
+                                    {
+                                        <span>No image available</span>
+                                    }
+                                </a>
+                                <div>
+                                    <a asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.Product.ProductID">
+                                        <p>@product.Product.ProductName</p>
+                                    </a>
+                                    <small>Selected Size: @product.SelectedSize <!-- Display selected size --></small><br>
+                                    @{
+                                        var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+                                        var totalPrice = additionalPrice;
+                                        var subtotalPrice = product.Quantity * totalPrice;
+                                    }
+                                    <small>Price: ₱@totalPrice.ToString("0.00")</small><br>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@product.Quantity</td>
+                        <td>₱@subtotalPrice.ToString("0.00")</td>
+                    </tr>
+                }
+
+            }
+        </table>
+
+
+        <div class="total-price">
+            <table>
+                <tr>
+                    <td>Total Price:</td>
+                    <td><strong>₱ @total.ToString("0.00")</strong></td>
+                </tr>
+                
+            </table>
+        </div>
+
+
+        <div class="container">
+            <div class="confirm-order">
+                <p class="fw-bold title">CONFIRM YOUR ORDER</p>
+                <form asp-controller="User" asp-action="OrderConfirm" method="post">
+                    <input type="text" class="form-control" placeholder="Address" name="address" value="@ViewBag.UserAddress" maxlength="100" required>
+                    <div>
+                        <div class="pl-3">
+                            <hr />
+                            <p class="fw-bold title">CHOOSE A PAYMENT METHOD<br />
+
+                            <p>
+                                <input type="radio" class="form-check-input" name="payment" value="GCash" id="gcash" required>
+                                <label for="gcash">GCash</label>
+                            </p>
+                            <p>
+                                <input type="radio" class="form-check-input" name="payment" value="PayMaya" id="paymaya" required>
+                                <label for="paymaya">Paymaya</label>
+                            </p>
+                            </p>
+                        </div>
+                    </div>
+                    <hr />
+                    <p class="fw-bold title">CHOOSE MODE OF DELIVERY</p>
+                    <div>
+                        <div class="pl-3">
+                            <label class="fw-bold title">Courier Options:</label><br />
+                            <span>
+                                <input type="radio" class="form-check-input" name="delivery" value="LBC" id="lbc" required>
+                                <label for="lbc">LBC</label>
+                            </span>
+                            <p>
+                                <input type="radio" class="form-check-input" name="delivery" value="GoGoExp" id="gogo" required>
+                                <label for="gogo">GoGo Xpress</label>
+                            </p>
+
+                            <label class="fw-bold title">Same-day Delivery Options:</label><br />
+                            <span>
+                                <input type="radio" class="form-check-input" name="delivery" value="Lalamove" id="lalamove" required>
+                                <label for="lalamove">Lalamove</label>
+                            </span>
+                            <p>
+                                <input type="radio" class="form-check-input" name="delivery" value="Grab" id="grab" required>
+                                <label for="grab">Grab</label>
+                            </p>
+                            <hr />
+                        </div>
+                    </div>
+
+                    <div class="pb-5  button-confirm  ">
+                        <a class="text-decoration-none w-50 mx-1">
+                            <button type="submit" class="buy-btn">Confirm</button>
+                        </a>
+                    </div>
+                    
+                </form>
+            </div>
+            <td>
+            </td>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+@*<div class="container mt-5">
+    <div class="border border-2 border-dark px-5 py-2 mb-5 pb-5">
+        <p class="fs-1 fw-bold">PLACE ORDERS</p>
+        <div class="row">
+            <div class="col-6">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ITEM NAME</th>
+                            <th scope="col">QUANTITY</th>
+                            <th scope="col">SIZE</th>
+                            <th scope="col">PRICE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                            <tr>
+                                <td>@product.Product.ProductName</td>
+                                <td>@product.Quantity</td>
+                                <td>@product.SelectedSize</td> <!-- Display selected size -->
+                                @{
+                                    var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+                                    var totalPrice = product.Product.ProductPrice + additionalPrice;
+                                }
+                                <td>₱ @totalPrice.ToString("0.00")</td>
+                            </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-6">
+                <div class="mt-5 mb-5 pt-4 w-100">
+                    <div class="bg-secondary p-5">
+                        <p class="fs-1 fw-bold text-center text-light">GRAND TOTAL</p>
+                        <p class="fs-1 fw-bold text-center text-light">₱ @total</p>
+                        <div class="d-flex justify-content-around">
+                            <a class="text-decoration-none w-50 mx-1" asp-area="" asp-controller="User" asp-action="Category1">
+                                <button type="button"
+                                        class="btn btn-light w-100">
+                                    CONTINUE SHOPPING
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="mt-5">
+            <div class="border border-2 border-dark px-5 py-2 mb-5 pb-5">
+                <p class="fs-1 fw-bold text-center">CONFIRM YOUR ORDER</p>
+                <div class="mt-3">
+                    <div class="border-2 border-dark">
+                        <div class="row justify-content-center">
+                            <div class="col-4">
+                                <form asp-controller="User" asp-action="OrderConfirm" method="post">
+                                    <input type="text" class="form-control" placeholder="Address" name="address" required>
+                                    <div class="dropdown mt-3">
+                                        <p>
+                                            <label for="gcash">GCash
+                                                <input type="radio" class="mr-5" name="payment" value="gcash" id="gcash">
+                                            </label>
+                                        </p>
+                                        <p>
+                                            <label for="paymaya">Paymaya
+                                                <input type="radio" class="mr-5" name="payment" value="paymaya" id="paymaya">
+                                            </label>
+                                        </p>
+                                    </div>
+                                    <a class="text-decoration-none w-50 mx-1">
+                                        <button type="submit"
+                                                class="btn btn-light w-100">
+                                            PLACE ORDER
+                                        </button>
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div> *@

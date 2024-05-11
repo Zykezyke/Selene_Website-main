@@ -1,0 +1,45 @@
+﻿@model SELENE_STUDIO.ViewModels.RegisterViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script language='javascript'>
+    function sendMessage() {
+        return confirm('Send Message?');
+    }
+</script>
+
+<div class="bg-secondary p-5 text-center">
+    <p class="fs-1 text-light fw-bold m-0">CONTACT US</p>
+    <p class="fs-5 text-light fw-light">HOME > CONTACT</p>
+</div>
+<div class="container mt-5">
+    <div class="mx-auto w-50 mb-5">
+        <div class="border border-2 border-dark p-5">
+            <p class="text-center fs-1 fw-bold">SAY SOMETHING!</p>
+            <div>
+                <form asp-controller="User" asp-action="SendMessage" method="POST">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="enter your name" value="@Model.FirstName @Model.LastName" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="enter your email" value="@Model.Email" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="number" name="number"
+                               placeholder="enter your contact number" value="@Model.Contact" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="message" name="message" rows="5" placeholder="enter your message"></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-secondary" onclick="return sendMessage()">SEND MESSAGE</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

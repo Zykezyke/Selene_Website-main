@@ -1,0 +1,178 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model List<Order>
+<br />
+<br />
+<div class="container">
+    <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">Order History</h1>
+</div>
+
+
+
+<div class="container ">
+    @if (Model.Count == 0)
+    {
+        <div class="empty-cart p-3 shadow">
+            <p><i class="fa-solid fa-cart-plus"></i> You haven't ordered yet!</p>
+        </div>
+        <br />
+
+
+        <a class="text-decoration-none" asp-area="" asp-controller="User" asp-action="Category1">
+            <button type="button" class="checkout-btn">ORDER NOW</button>
+        </a>
+    }
+    else
+    {
+    <div class="small-container cart-page">
+        <table class="order-table shadow">
+            <tr>
+                <th>Order</th>
+                <th>Product</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            @foreach (var order in Model)
+            {
+                @if (!order.IsDeleted)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="User" asp-action="OrderDetails" asp-route-id="@order.OrderNumber">
+                                <h5>@order.OrderNumber</h5>
+                            </a>
+                        </td>
+                        <td>
+                            <div>
+                                @foreach (var product in order.Products)
+                                {
+                                    <a asp-controller="User" asp-action="OrderDetails" asp-route-id="@order.OrderNumber">
+                                        @if (!string.IsNullOrEmpty(product.CustomImagePath))
+                                        {
+                                            <img src="@product.CustomImagePath" alt="Custom Product Image" width="25" height="25" />
+                                        }
+                                        else if (product.Product.ImagePaths != null && product.Product.ImagePaths.Any())
+                                        {
+                                            <img src="@product.Product.ImagePaths.First()" alt="Product Image" width="25" height="25" />
+                                        }
+                                        <span class="fw-bold text-black">@product.Product.ProductName</span> | Size: @product.SelectedSize (@product.Quantity)<br />
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            @order.Date
+                        </td>
+                        <td>₱ @order.TotalPrice</td>
+                        <td>
+                            @if (order.OrderStatus == OrderStatus.Pending)
+                            {
+                                <small class="text-gray">@order.OrderStatus</small>
+                            }
+                            else if (order.OrderStatus == OrderStatus.Cancelled)
+                            {
+                                <small class="text-danger">@order.OrderStatus</small>
+                            }
+                            else
+                            {
+                                <small class="text-success">@order.OrderStatus</small>
+                            }
+                        </td>
+                        <td>
+                            @if (order.OrderStatus == OrderStatus.Pending)
+                            {
+                                <form asp-controller="User" asp-action="CancelOrder" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderNumber" />
+                                    <center><button type="submit" class="btn-danger hero2-btn m-3">Cancel Order</button></center>
+                                </form>
+                            }
+                            else if (order.OrderStatus == OrderStatus.Completed || order.OrderStatus == OrderStatus.Cancelled)
+                            {
+                                <form asp-controller="User" asp-action="DeleteOrder" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderNumber" />
+                                    <center><button type="submit" class="btn-danger hero2-btn m-3">Delete Order</button></center>
+                                </form>
+                            }
+                            else if (order.OrderStatus == OrderStatus.Accepted)
+                            {
+
+                                        @if (!string.IsNullOrEmpty(order.UploadedImagePath) && order.PaymentStatus == PaymentStatus.Pending)
+                                        {
+                                    <center><span class=" bg-warning hero2-btn m-3">Processing Payment</span></center>
+                                }
+                                else if (order.PaymentStatus == PaymentStatus.Pending)
+                                        {
+                                        <center><a asp-controller="User" asp-action="OrderDetails" asp-route-id="@order.OrderNumber"><button class="fw-bold bg-warning hero2-btn m-3">Upload Proof of Payment</button></a></center>
+
+                                    } else if (order.PaymentStatus == PaymentStatus.Unpaid)
+                                    {
+                                        <center><span class=" bg-warning hero2-btn m-3">Payment Unpaid</span></center>
+                                    }
+                                    else if (order.OldPaymentStatus != null && order.OldOrderStatus != null
+                                    && (order.OldPaymentStatus != order.PaymentStatus
+                                    || order.OldOrderStatus != order.OrderStatus))
+
+                                    {
+                                        <center><span class=" bg-warning hero2-btn m-3">Status Changed</span></center>
+                                    }
+
+
+                                }
+                                else if (!string.IsNullOrEmpty(order.UploadedImagePath) && order.PaymentStatus == PaymentStatus.Paid && order.OrderStatus == OrderStatus.Processing)
+                                {
+                                    <center><span class=" bg-warning hero2-btn m-3">Payment Received</span></center>
+                                }
+                                else if (order.OrderStatus == OrderStatus.Shipped)
+                                {
+                                    <center><span class=" bg-warning hero2-btn m-3">Order Shipped</span></center>
+                                }
+
+                            </td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="container">
+                <div aria-label="Feedback page navigation">
+                    <ul class="pagination justify-content-center">
+                        @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(ViewBag.CurrentPage == i ? "item-active" : "")">
+                                <a class="page-link" href="@Url.Action("Orders", "User", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            var orderId = event.target.dataset.order;
+            var reader = new FileReader();
+            reader.onload = function () {
+                var imagePreview = document.getElementById('imagePreview_' + orderId);
+                imagePreview.src = reader.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+}

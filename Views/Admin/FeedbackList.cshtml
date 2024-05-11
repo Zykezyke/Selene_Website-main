@@ -1,0 +1,38 @@
+﻿@model List<Product>
+
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container">
+    <div class="mt-5">
+        <h1 class="large-text mt-5 fw-bold pb-5">
+            &nbsp;&nbsp;&nbsp
+            <a href="@Url.Action("Index", "Admin")" class="text-dark text-decoration-none">
+                <i class="fa-solid fa-circle-chevron-left"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;Products with feedback &nbsp;&nbsp;&nbsp;
+        </h1>
+        <table class="order-table shadow">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td>@product.ProductID</td>
+                        <td>@product.ProductName</td>
+                        <td>
+                            <a asp-controller="Admin" asp-action="ViewFeedbacks" asp-route-productId="@product.ProductID" class="btn btn-outline-secondary btn-save">View Feedback</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,173 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model SELENE_STUDIO.ViewModels.HomeViewModel
+
+<div id="carouselExampleCaptions" class="carousel slide carousel-fade" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="~/products/images/slide1.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+                <p></p>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <img src="~/products/images/slide2.jpg" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+            <img src="~/products/images/slide3.jpg" class="d-block w-100" alt="...">
+        </div
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
+<br />
+<div class="welcome">
+    <img src="~/images/welcomebar.png" alt="#" />
+    <div class="row">
+        <div class="col">
+            <div class="welcome_text top-left">
+                <h1>WELCOME TO SELENE PRINTING STUDIO</h1>
+            </div>
+        </div>
+        <div class="col">
+            <div class="welcome_text top-right">
+                <h3>A digital printing service provider in the Philippines</h3>
+                <p>Printing your requirements is now easier than ever. </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+
+<div class="container-product">
+    <p class="text-color fs-1 fw-bold text-center pt-3">Featured Products</p>
+    <div class="pt-2 featured-product" id="top-products">
+        <div class="row pb-5">
+            @foreach (var product in Model.TopProducts)
+            {
+                <div class="index_tabs_single">
+                    <!-- Your HTML code to display each product -->
+                    <a href="@Url.Action("ViewProduct", "User", new { id = product.ProductID })">
+                        <div class="index_tabs_single_thumb index_row_wrap shadow">
+                            @if (product.ImagePaths != null && product.ImagePaths.Any())
+                            {
+                                <img width="300" height="300" src="@product.ImagePaths.First()" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="@product.ProductName">
+                            }
+                            else
+                            {
+                                <span>No image available</span>
+                            }
+                        </div>
+                    </a>
+                    <div class="index_tabs_textinfo">
+                        <div class="index_tabs_title">
+                            <a href="@Url.Action("ViewProduct", "User", new { id = product.ProductID })">
+                                <Strong class="text-black">@product.ProductName</Strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.FeaturedFeedbacks.Any())
+{
+    <div class="test-container"> 
+        <p class="text-color fs-1 fw-bold text-center">Customer Reviews</p>
+        <div class="pt-2" id="reviews">
+            <div class="testimonial">
+
+                <div class="row ">
+                    @foreach (var feedback in Model.FeaturedFeedbacks)
+                    {
+                        <div class="col-4">
+                            <div class="test-col">
+                                <i class="fa fa-quote-left text-color"></i>
+                                <p>@feedback.Content</p>
+                                <div class="reviews" data-rating="@feedback.Rating">
+                                    @for (var i = 0; i < feedback.Rating; i++)
+                                        {
+                                            <i class="bx bx-star star"></i>
+                                        }
+                                </div>
+                                <strong>@feedback.User.FirstName @feedback.User.LastName</strong>
+                            </div>
+                            
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@* @if (Model.FeaturedFeedbacks.Any())
+{
+    <div class="container">
+        <p class="text-color fs-1 fw-bold text-center pt-5 pb-2">Customer Reviews</p>
+        <div class="pt-2" id="reviews">
+            <div class="row mb-5 justify-content-center">
+                <div class="ffb-box-container">
+                    @foreach (var feedback in Model.FeaturedFeedbacks)
+                    {
+                        <div class="ffb-box rounded-3">
+                            <div class="fb-box-top">
+                                <div class="fb-details">
+                                    <div class="fb-user">
+                                        <strong>@feedback.User.FirstName @feedback.User.LastName</strong>
+                                        <span>@feedback.User.UserName</span>
+                                    </div>
+                                </div>
+                                <div class="reviews" data-rating="@feedback.Rating">
+                                    @for (var i = 0; i < feedback.Rating; i++)
+                                    {
+                                        <i class="bx bx-star star"></i>
+                                    }
+                                </div>
+                            </div>
+                            <div class="user-fb">
+                                <p>@feedback.Content</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+} *@
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const reviewContainers = document.querySelectorAll('.reviews');
+
+        reviewContainers.forEach(container => {
+            const rating = parseInt(container.getAttribute('data-rating'));
+            const stars = container.querySelectorAll('.star');
+
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('bxs-star'); // Filled star
+                } else {
+                    star.classList.remove('bxs-star'); // Empty star
+                }
+            });
+        });
+    });
+</script>
+

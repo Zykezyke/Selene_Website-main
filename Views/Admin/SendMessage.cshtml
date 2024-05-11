@@ -1,0 +1,447 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model SELENE_STUDIO.ViewModels.ConversationViewModel
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5); /* Dim the background */
+    }
+
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 90%; /* Limit modal width */
+        max-height: 90%; /* Limit modal height */
+        position: relative; /* Position modal content */
+    }
+
+    .modal-body {
+        text-align: center; /* Center images horizontally */
+    }
+
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        font-size: 30px;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    /* Adjust image size */
+    #modalImage {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto; /* Ensure aspect ratio preservation */
+        height: auto; /* Ensure aspect ratio preservation */
+    }
+
+    #imagePreview {
+        max-width: 70px;
+        max-height: 48px;
+    }
+</style>
+
+
+@{
+    var initiatorFirstName = Model.Conversation.Initiator != null ? Model.Conversation.Initiator.FirstName : "Unknown";
+    var initiatorLastName = Model.Conversation.Initiator != null ? Model.Conversation.Initiator.LastName : "Unknown";
+}
+<div class="container">
+    <div class="chat-container">
+        <header>
+            <div class="arrow-container">
+                <a href="@Url.Action("ViewConversations", "Admin")" class="view-conversations-icon">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            </div>
+            <h2 class="text-center">@initiatorFirstName @initiatorLastName</h2>
+        </header>
+        <ul id="chatbox" class="chatbox">
+
+            @foreach (var message in Model.Messages)
+            {
+                var cleanedMessage = System.Text.RegularExpressions.Regex.Replace(message.Content, @"<[^br>]+>", "");
+                @if (!string.IsNullOrEmpty(message.Content) && !string.IsNullOrEmpty(message.ImageUrl))
+                {
+                    if (message.SenderId == "1")
+                    {
+                        <li class="chat outgoing">
+                            <p>@Html.Raw(cleanedMessage)</p>
+                        </li>
+
+                        <li class="chat outgoing">
+                            <img src="@message.ImageUrl" alt="Image" class="message-image rounded" style="max-width: 300px; max-height: 500px; cursor: pointer;" onclick="showImageModal('@message.ImageUrl')" />
+                        </li>
+
+                    }
+                    else
+                    {
+
+                        <li class="chat incoming">
+                            <p>@Html.Raw(cleanedMessage)</p>
+                        </li>
+                        <li class="chat incoming">
+                            <img src="@message.ImageUrl" alt="Image" class="message-image rounded" style="max-width: 300px; max-height: 500px; cursor: pointer;" onclick="showImageModal('@message.ImageUrl')" />
+                        </li>
+
+                    }
+                }
+                else if (!string.IsNullOrEmpty(message.ImageUrl))
+                {
+                    if (message.SenderId == "1")
+                    {
+                        <li class="chat outgoing">
+                            <img src="@message.ImageUrl" alt="Image" class="message-image" style="max-width: 300px; max-height: 500px; cursor: pointer;" onclick="showImageModal('@message.ImageUrl')" />
+                        </li>
+
+                    }
+                    else
+                    {
+                        <li class="chat incoming">
+                            <img src="@message.ImageUrl" alt="Image" class="message-image" style="max-width: 300px; max-height: 500px; cursor: pointer;" onclick="showImageModal('@message.ImageUrl')" />
+                        </li>
+
+                    }
+                }
+                else if (message.Content == "" || string.IsNullOrEmpty(message.Content))
+                {
+                    if (message.SenderId == "1")
+                    {
+
+
+                    }
+                    else
+                    {
+
+
+                    }
+                }
+
+                else
+                {
+                    if (message.SenderId == "1")
+                    {
+
+                        <li class="chat outgoing">
+                            <p>@Html.Raw(cleanedMessage)</p>
+                        </li>
+
+                    }
+                    else
+                    {
+
+                        <li class="chat incoming">
+                            <p>@Html.Raw(cleanedMessage)</p>
+                        </li>
+
+                    }
+                }
+            }
+
+        </ul>
+
+        <form method="post" id="message-form" asp-action="SendMessage" enctype="multipart/form-data">
+            <div class ="msg-img-prev"> <img id="imagePreview" src="#" alt="Image Preview" style="display: none;" /></div>
+            <div class="chat-input input-upload">
+                <input type="hidden" name="conversationId" value="@Model.Conversation.ConversationId" />
+               
+                <textarea id="content" name="content" placeholder="Enter a message..." maxlength="300" required></textarea>
+                <button class="plane" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+                <input class="i fa-solid fa-arrow-up-from-bracket" type="file" id="image" name="image" accept="image/*" onchange="previewImage()"></input>
+            </div>
+        </form>
+
+          
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+    <img id="modalImage" class="modal-content" />
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var selectedText = "";
+
+            var conversationId = @Model.Conversation.ConversationId;
+
+            function fetchMessages() {
+                fetch('@Url.Action("FetchMessages", "Admin")?conversationId=' + conversationId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.messages) {
+                            // Get selected text before updating messages
+                            selectedText = getSelectedText();
+                            updateMessages(data.messages);
+                            // Reapply selection after updating messages
+                            if (selectedText) {
+                                selectText(selectedText);
+                            }
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            }
+
+            function toggleTextareaRequired() {
+                var contentTextarea = document.getElementById("content");
+                var imageInput = document.getElementById("image");
+
+                // If an image is selected, remove the "required" attribute from the textarea
+                if (imageInput.files.length > 0) {
+                    contentTextarea.removeAttribute("required");
+                } else {
+                    // If no image is selected, add the "required" attribute to the textarea
+                    contentTextarea.setAttribute("required", "required");
+                }
+            }
+
+            // Call toggleTextareaRequired when the image input changes
+            document.getElementById("image").addEventListener("change", toggleTextareaRequired);
+
+            function getSelectedText() {
+                var selection = window.getSelection();
+                var messagesContainer = document.getElementById("chatbox");
+                if (selection.rangeCount > 0) {
+                    var range = selection.getRangeAt(0);
+                    if (messagesContainer.contains(range.commonAncestorContainer)) {
+                        return selection.toString();
+                    }
+                }
+                return "";
+            }
+
+            function selectText(text) {
+                var messagesContainer = document.getElementById("chatbox");
+                var range = document.createRange();
+                var walker = document.createTreeWalker(messagesContainer, NodeFilter.SHOW_TEXT, null, false);
+
+                while (walker.nextNode()) {
+                    var node = walker.currentNode;
+                    var nodeText = node.nodeValue;
+
+                    var index = nodeText.indexOf(text);
+                    if (index !== -1) {
+                        range.setStart(node, index);
+                        range.setEnd(node, index + text.length);
+                        var selection = window.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        break; // Exit loop after selecting the text
+                    }
+                }
+            }
+
+            function updateMessages(messages) {
+                var messagesContainer = document.getElementById("chatbox");
+                messagesContainer.innerHTML = ""; // Clear previous messages
+
+                messages.forEach(function (message) {
+                    if (message.senderName === "Admin") {
+                        // If the message is from Admin
+                        if (message.content !== null && message.content.trim() !== "") { // Check if content is not null
+                            var adminMessageElementContent = document.createElement("li");
+                            adminMessageElementContent.classList.add("chat", "outgoing");
+                            var cleanedMessage = message.content.replace(/<[^br>]+>/g, "");
+                            adminMessageElementContent.innerHTML = `
+                            <p>${cleanedMessage}</p>
+                        `;
+                            messagesContainer.appendChild(adminMessageElementContent); // Append Admin content message
+                        }
+                        if (message.imageUrl) {
+                            var adminMessageElementImage = document.createElement("li");
+                            adminMessageElementImage.classList.add("chat", "outgoing");
+                            adminMessageElementImage.innerHTML = `
+                            <img src="${message.imageUrl}" alt="Image" class="message-image" style="max-width: 300px; max-height: 500px; cursor: pointer;" />
+                        `;
+                            messagesContainer.appendChild(adminMessageElementImage); // Append Admin image message
+                        }
+                    } else {
+                        // If the message is not from Admin
+                        if (message.content !== null && message.content.trim() !== "") { // Check if content is not null
+                            var userMessageElementContent = document.createElement("li");
+                            userMessageElementContent.classList.add("chat", "incoming");
+                            var cleanedMessage = message.content.replace(/<[^br>]+>/g, "");
+                            userMessageElementContent.innerHTML = `
+                            <p>${cleanedMessage}</p>
+                        `;
+                            messagesContainer.appendChild(userMessageElementContent); // Append user content message
+                        }
+                        if (message.imageUrl) {
+                            var userMessageElementImage = document.createElement("li");
+                            userMessageElementImage.classList.add("chat", "incoming");
+                            userMessageElementImage.innerHTML = `
+                            <img src="${message.imageUrl}" alt="Image" class="message-image" style="max-width: 300px; max-height: 500px; cursor: pointer;" />
+                        `;
+                            messagesContainer.appendChild(userMessageElementImage); // Append user image message
+                        }
+                    }
+                });
+
+                attachImageClickEvent(); // Attach click event to new images
+            }
+
+
+
+            function scrollToBottom() {
+                var chatbox = document.getElementById("chatbox");
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+
+            scrollToBottom();
+
+
+            setInterval(fetchMessages, 2000); // Fetch messages every 2 seconds
+
+            var form = document.getElementById("message-form");
+            var contentTextarea = document.getElementById("content");
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                sendMessage();
+            });
+
+            contentTextarea.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    sendMessageOnEnter();
+                }
+            });
+
+            function sendMessageOnEnter() {
+                var content = contentTextarea.value.trim(); // Trim whitespace
+
+                if (content !== "" || document.getElementById("image").files.length > 0) {
+                    sendMessage();
+                }
+            }
+
+            function sendMessage() {
+                var formData = new FormData(form);
+                var content = formData.get('content');
+
+                // Insert line breaks every 80 characters
+                content = content.replace(/(.{80})/g, "$1\n");
+
+                // Send the modified content to the server
+                formData.set('content', content);
+
+                fetch(form.getAttribute("action"), {
+                    method: form.getAttribute("method"),
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.messages) {
+                            updateMessages(data.messages);
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+
+                // Clear message input
+                contentTextarea.value = "";
+
+                // Clear image input and hide preview
+                var imageInput = document.getElementById("image");
+                imageInput.value = "";
+                var imagePreview = document.getElementById("imagePreview");
+                imagePreview.src = "";
+                imagePreview.style.display = "none";
+            }
+        });
+
+        function showImageModal(imageUrl) {
+            var modal = document.getElementById("imageModal");
+            var modalImg = document.getElementById("modalImage");
+            modal.style.display = "flex"; // Center the modal
+            modalImg.src = imageUrl;
+            modalImg.style.maxWidth = "1500px";
+            modalImg.style.maxHeight = "900px";
+            // Dim the page
+            document.body.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        }
+
+        // Function to close the modal
+        function closeImageModal() {
+            var modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+            // Restore page background color
+            document.body.style.backgroundColor = "";
+        }
+
+        // Close modal when clicking outside the image
+        window.onclick = function (event) {
+            var modal = document.getElementById("imageModal");
+            if (event.target == modal) {
+                closeImageModal();
+            }
+        };
+
+        // Attach click event to elements with class "message-image"
+        function attachImageClickEvent() {
+            var images = document.querySelectorAll(".message-image");
+            images.forEach(function (image) {
+                image.addEventListener("click", function () {
+                    var imageUrl = this.src;
+                    showImageModal(imageUrl);
+                });
+            });
+        }
+
+        function previewImage() {
+            var preview = document.getElementById('imagePreview');
+            var file = document.getElementById('image').files[0];
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+}
+
+
+

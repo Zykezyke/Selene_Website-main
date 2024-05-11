@@ -1,0 +1,113 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+
+
+<br />
+<br />
+<div class="container">
+    <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">
+        <a href="@Url.Action("Index", "Admin")" class="text-dark text-decoration-none">
+            <i class="fa-solid fa-circle-chevron-left"></i>
+        </a>&nbsp Message History
+    </h1>
+</div>
+
+<div class="container">
+    <div>
+        <div class="px-5 py-2 mb-5 pb-5">
+            <div class="mt-3">
+                <div class="border-2 border-dark">
+                    <div class="row shadow">
+                        <div class="col order-details-bar">
+                            <p class="fw-bold">Messages</p>
+                        </div>
+                    </div>
+                    <div class="row shadow">
+                        <div class="order-details">
+                            <br />
+                            <div class="row">
+                                <div class="col">
+                                    @if (ViewBag.Conversations == null || ((List<Conversation>)ViewBag.Conversations).Count == 0)
+                                    {
+                                        <center>
+                                        <form asp-area="" method="post" asp-action="InitiateConversation" asp-controller="Admin">
+                                            <label for="adminSelect">Select User:</label>
+                                            <select id="adminSelect" name="userId">
+                                                @foreach (var user in ViewBag.Users)
+                                                {
+                                                    <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                                }
+                                            </select>
+                                            <button type="submit" class="buy-btn m-3">Initiate Conversation</button>
+                                        </form>
+                                        <br />
+                                        </center>
+                                    }
+                                    else
+                                    {
+                                        <div id="conversations-container">
+                                            @foreach (var conversation in ViewBag.Conversations)
+                                            {
+
+                                                <div>
+                                                    @{
+                                                        var initiatorFirstName = conversation.Initiator != null ? conversation.Initiator.FirstName : "Unknown";
+                                                        var initiatorLastName = conversation.Initiator != null ? conversation.Initiator.LastName : "Unknown";
+                                                    }
+                                                    <p>
+                                                        <i class="item-color fa-solid fa-message"></i>
+                                                        Customer Name: @initiatorFirstName @initiatorLastName (ID: @conversation.ConversationId) &nbsp
+                                                        <a href="@Url.Action("SendMessage", "Admin", new { id = conversation.ConversationId })" class="a" style="float: right;">View conversation</a>
+                                                    </p>
+                                                </div>
+                                                <hr />
+                                            }
+                                        </div>
+                                        @if (ViewBag.TotalPages > 1)
+                                        {
+                                            <div class="container">
+                                                <div aria-label="Page navigation">
+                                                    <ul class="pagination justify-content-center">
+                                                        @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                                                        {
+                                                            <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                                                <a class="page-link" href="@Url.Action("ViewConversations", "Admin", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        }
+                                        <center>
+                                            <form asp-area="" method="post" asp-action="InitiateConversation" asp-controller="Admin">
+                                                <label for="adminSelect">Select User:</label>
+                                                <select id="adminSelect" name="userId">
+                                                    @foreach (var user in ViewBag.Users)
+                                                    {
+                                                        // Exclude null or blank options and the admin from the selection list
+                                                        if (!string.IsNullOrWhiteSpace(user.Id) && user.Id != "1")
+                                                        {
+                                                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                                        }
+                                                    }
+                                                </select>
+                                                <button type="submit" class="buy-btn m-3">Initiate Conversation</button>
+                                            </form>
+
+                                        </center>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+

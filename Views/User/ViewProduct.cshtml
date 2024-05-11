@@ -1,0 +1,356 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Product
+<html>
+<body>
+    <section class="container prod-info pt-5 pb-3 shadow">
+        <div class="row ">
+            <div class="col-lg-5 col-md-12 col-12">
+                @if (Model.ImagePaths != null && Model.ImagePaths.Any())
+                {
+                    <img src="@Model.ImagePaths.First()" class="img-fluid main-img pb-1" id="MainImg" alt="@Model.ProductName">
+                    <div class="small-img-group">
+                        @foreach (var imagePath in Model.ImagePaths)
+                        {
+                            <div class="small-img-col">
+                                <img src="@imagePath" width="100%" class="small-img" alt="@Model.ProductName">
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span>No image available</span>
+                }
+            </div>
+            <div class="col-lg-6 col-md-12 col-12">
+                <h1 class="prodname">@Model.ProductName</h1>
+                @if (User.Identity.IsAuthenticated) // Check if the user is authenticated
+                {
+                    <form id="addToCartForm" asp-controller="User" asp-action="AddToCart" method="post">
+                        <input type="hidden" name="productId" value="@Model.ProductID">
+                        <!-- Product Quantity Adjuster -->
+                        <div class="d-flex align-items-center">
+                           <label class="m-1 p-1" for="quantity">QUANTITY: </label>
+                           <input class="input-quan" type="number" id="quantity" name="count" value="1" min="1">
+
+                            <button type="submit" class="buy-btn py-1 my-2 mr-2 ml-2">ADD TO CART</button>
+                            <button type="button" class="buy-btn" data-toggle="modal" data-target="#customProductModal">CUSTOMIZE</button>
+                        </div>
+
+                            <h5 class="sizetitle">Available Sizes:</h5>
+                            @foreach (var size in Model.GetAvailableSizes())
+                            {
+                                // Find the additional price for the current size
+                                var additionalPrice = Model.AdditionalPrices.FirstOrDefault(ap => ap.Size == size)?.Price ?? 0;
+                                var totalPrice = additionalPrice;
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="size" id="@($"size_{size}")" value="@size" checked>
+                                    <label class="form-check-label" for="@($"size_{size}")">
+                                        <strong>@size</strong> - PHP @totalPrice
+                                    </label>
+                                </div>
+                            }
+
+                        <div id="errorMessage" class="text-danger"></div> <!-- Placeholder for error message -->
+                    </form>
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+                } else
+                    @foreach (var size in Model.GetAvailableSizes())
+                    {
+                        // Find the additional price for the current size
+                        var additionalPrice = Model.AdditionalPrices.FirstOrDefault(ap => ap.Size == size)?.Price ?? 0;
+                        var totalPrice = additionalPrice;
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="size" id="@($"size_{size}")" value="@size" checked>
+                            <label class="form-check-label" for="@($"size_{size}")">
+                                @size - PHP @totalPrice
+                            </label>
+                        </div>
+                    }
+
+                            
+                            
+                        
+
+                <h5 class="proddetails">Product Details</h5>
+                <span>@Model.ProductDescription</span>
+            </div>
+        </div>
+        <h4 class="mt-5 mb-3">Feedback and Ratings</h4>
+@if (ViewBag.Feedbacks != null && ViewBag.Feedbacks.Count > 0)
+{
+    <div class="fb-box-container">
+        @foreach (var feedback in ViewBag.Feedbacks)
+        {
+            <div class="fb-box">
+                <div class="fb-box-top">
+                    <div class="fb-details">
+                        <div class="fb-user">
+                            <strong>@feedback.User.FirstName @feedback.User.LastName</strong>
+                            <span>@feedback.User.UserName</span>
+                        </div>
+                    </div>
+                    <div class="reviews" data-rating="@feedback.Rating">
+                        <i class="bx bx-star star"></i>
+                        <i class="bx bx-star star"></i>
+                        <i class="bx bx-star star"></i>
+                        <i class="bx bx-star star"></i>
+                        <i class="bx bx-star star"></i>
+                    </div>
+                </div>
+                @{ var cleanedFeedback = System.Text.RegularExpressions.Regex.Replace(feedback.Content, @"<[^br>]+>", "");
+                <div class="user-fb">
+                    <p>@Html.Raw(cleanedFeedback)</p>
+                </div>
+                }
+            </div>
+        }
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="container">
+            <div aria-label="Feedback page navigation">
+                <ul class="pagination justify-content-center">
+                    @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "item-active" : "")">
+                            <a class="page-link" href="@Url.Action("ViewProduct", "User", new { id = Model.ProductID, page = i, pageSize = ViewBag.PageSize })">@i</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No feedback available for this product.</p>
+}
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const reviewContainers = document.querySelectorAll('.reviews');
+
+                reviewContainers.forEach(container => {
+                    const rating = parseInt(container.getAttribute('data-rating'));
+                    const stars = container.querySelectorAll('.star');
+
+                    stars.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.add('bxs-star'); // Filled star
+                        } else {
+                            star.classList.remove('bxs-star'); // Empty star
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <div class="modal pt-5" id="customProductModal" tabindex="-1" role="dialog" aria-labelledby="customProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content modal-container-content center">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="customProductModalLabel">Customize Your Product</h5>
+                        <button type="button" class="close plane" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="customProductForm" asp-controller="User" asp-action="AddCustomProduct" method="post" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <!-- Custom Product Description -->
+                            <div class="form-group">
+                                <label for="customDescription">Custom Description:</label>
+                                <textarea class="form-control" name="customDescription" id="customDescription" rows="3"></textarea>
+                            </div>
+
+<!-- Custom Product Images -->
+<div class="form-group">
+    <label for="customImages">Custom Images:</label>
+    <div class="custom-file">
+        <input type="file" class="custom-file-input" name="customImage" id="customImages" accept="image/*" onchange="previewImage(this)">
+        <label class="custom-file-label" id="fileLabel" for="customImages">Upload here</label>
+    </div>
+    <br>
+    <img id="customImagePreview" src="#" alt="Image Preview" style="display: none; max-width: 100px; margin-top: 10px;">
+</div>
+
+
+
+
+
+                            <!-- Hidden fields to pass necessary data -->
+                            <input type="hidden" name="productId" value="@Model.ProductID">
+                            <input type="hidden" name="additionalPrices" value="@Model.AdditionalPrices">
+                            @foreach (var size in Model.GetAvailableSizes())
+                            {
+                                // Find the additional price for the current size
+                                var additionalPrice = Model.AdditionalPrices.FirstOrDefault(ap => ap.Size == size)?.Price ?? 0;
+                                var totalPrice =additionalPrice;
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="size" id="@($"size_{size}")" value="@size" checked>
+                                    <label class="form-check-label" for="@($"size_{size}")">
+                                        @size - PHP @totalPrice
+                                    </label>
+                                </div>
+                            }
+                            <input type="hidden" name="productCategory" value="@Model.ProductCategory">
+                            <!-- Add more hidden fields if necessary -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Custom Product to Cart</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <h4 class="mt-5 mb-3">Leave Feedback</h4>
+        @if (User.Identity.IsAuthenticated && ViewBag.CanLeaveFeedback)
+        {
+        <form asp-action="AddFeedback" method="post" class="feed-back">
+            <div class="rating">
+                <input type="hidden" name="productId" value="@Model.ProductID">
+                    <input type="radio" id="star1" name="rating" value="1" />
+                    <label for="star1">
+                        <i class="bx bx-star star"></i>
+                    </label>
+
+                    <input type="radio" id="star2" name="rating" value="2" />
+                    <label for="star2">
+                        <i class="bx bx-star star"></i>
+                    </label>
+
+                    <input type="radio" id="star3" name="rating" value="3" />
+                    <label for="star3">
+                        <i class="bx bx-star star"></i>
+                    </label>
+
+                    <input type="radio" id="star4" name="rating" value="4" />
+                    <label for="star4">
+                        <i class="bx bx-star star"></i>
+                    </label>
+
+                    <input type="radio" id="star5" name="rating" value="5" />
+                    <label for="star5">
+                        <i class="bx bx-star star"></i>
+                    </label
+            </div>
+         <textarea class="form-control" name="content" id="content" cols="30" rows="5" placeholder="Leave a feedback message here..." required maxlength="300"></textarea>
+         <div id="charCount"></div>
+            <button type="submit" class="buy-btn mt-3 rounded">SUBMIT</button>
+        </form>
+        }
+        else if (!User.Identity.IsAuthenticated)
+        {
+            <p>Please <a href="/Account/Login">login</a> to leave feedback.</p>
+        }
+        else
+        {
+            <p>You must complete an order for this product to leave a feedback.</p>
+        }
+
+
+        <script>
+            const allStar = document.querySelectorAll('.rating .star');
+
+            allStar.forEach((item, idx) => {
+                item.addEventListener('click', function () {
+                    allStar.forEach(i => {
+                        i.classList.replace('bxs-star', 'bx-star');
+                    });
+                    for (let i = 0; i < allStar.length; i++) {
+                        if (i <= idx) {
+                            allStar[i].classList.replace('bx-star', 'bxs-star');
+                        }
+                    }
+                }); 
+            });
+        </script>
+
+    
+
+    </section>
+    <script>
+        $(document).ready(function () {
+            $('.rating input').click(function () {
+                var index = $(this).val();
+                $(this).siblings('label').find('i').removeClass('bi-star bi-star-fill');
+                $(this).siblings('label').find('i').addClass('bi-star');
+                $(this).siblings('label').slice(0, index).find('i').removeClass('bi-star');
+                $(this).siblings('label').slice(0, index).find('i').addClass('bi-star-fill');
+            });
+        });
+        function previewImage(input) {
+    var preview = document.getElementById('customImagePreview');
+    var file = input.files[0];
+    var reader = new FileReader();
+
+    reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block'; // Show the preview
+    }
+
+    if (file) {
+        reader.readAsDataURL(file); // Convert image to Data URL
+    }
+}
+
+    </script>
+
+    <script>
+        var MainImg = document.getElementById('MainImg');
+        var smallimg = document.getElementsByClassName('small-img');
+
+        for (var i = 0; i < smallimg.length; i++) {
+            smallimg[i].onclick = function () {
+                MainImg.src = this.src;
+            }
+        }
+    </script>
+
+    <script>
+
+    function updateCharCount() {
+        var content = document.getElementById("content").value;
+        var charCount = content.length;
+        document.getElementById("charCount").textContent = charCount + "/300";
+
+
+        if (charCount > 300) {
+            document.getElementById("content").value = content.substring(0, 300);
+        }
+    }
+
+
+    document.getElementById("content").addEventListener("input", updateCharCount);
+
+
+    updateCharCount();
+</script>
+    
+
+
+
+
+    
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+
+
+
+
+  
+</body>
+</html>

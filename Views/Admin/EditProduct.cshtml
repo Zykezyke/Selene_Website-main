@@ -1,0 +1,225 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@{
+    // Convert ICollection<string> to List<string> to enable indexing
+    List<string> imagePathsList = Model.ImagePaths.ToList();
+}
+<script>
+    function loadAvailableSizes(selectedCategory) {
+        var sizesContainer = document.getElementById("AvailableSizesContainer");
+        sizesContainer.innerHTML = "";
+
+        fetch(`/Admin/GetAvailableSizes?category=${selectedCategory}`)
+            .then(response => response.json())
+            .then(sizes => {
+                sizes.forEach(size => {
+                    var sizeContainer = document.createElement("div");
+                    sizeContainer.classList.add("row", "mb-3");
+
+                    var sizeLabel = document.createElement("div");
+                    sizeLabel.classList.add("col-4");
+                    sizeLabel.innerHTML = `<p class="pt-1">${size}:</p>`;
+
+                    var sizeInput = document.createElement("div");
+                    sizeInput.classList.add("col-8");
+                    sizeInput.innerHTML = `
+                            <input type="number" name="AdditionalPrices[${size}]" class="form-control w-25" step="0.01" min="0" required>
+                        `;
+
+                    sizeContainer.appendChild(sizeLabel);
+                    sizeContainer.appendChild(sizeInput);
+
+                    sizesContainer.appendChild(sizeContainer);
+                });
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var productCategoryDropdown = document.getElementById("ProductCategoryDropdown");
+
+        // Call the function to load sizes when the page initially loads
+        var initialSelectedCategory = productCategoryDropdown.value;
+        loadAvailableSizes(initialSelectedCategory);
+
+        productCategoryDropdown.addEventListener("change", function () {
+            var selectedCategory = this.value;
+            loadAvailableSizes(selectedCategory);
+        });
+
+        function handleFileInputChange(input) {
+            var preview = input.parentElement.querySelector(".image-preview");
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.innerHTML = "<img src='" + e.target.result + "' class='img-fluid' alt='Image Preview'>";
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Event listener for file input change
+        var fileInputs = document.querySelectorAll(".image-upload");
+        fileInputs.forEach(function (input) {
+            input.addEventListener("change", function () {
+                handleFileInputChange(input);
+            });
+        });
+    });
+</script>
+
+<script language='javascript'>
+            <!--
+    function beforeEdit() { return (confirm('Are you sure you want to edit the selected item?')); }
+    //-->
+</script>
+
+@model Product
+<div class="container">
+    
+    <div class="container">
+        
+        <div class="mx-auto w-75 mt-3">
+            
+            <div class="card mb-5">
+                <h1 class="large-text mt-5 fw-bold pb-5">
+                    &nbsp;&nbsp;&nbsp
+                    <a href="@Url.Action("Products", "Admin")" class="text-dark text-decoration-none">
+                        <i class="fa-solid fa-circle-chevron-left"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;Edit Product&nbsp;&nbsp;&nbsp;
+                </h1>
+                <div class="card-body">
+                    <form asp-action="EditProduct" asp-controller="Admin" method="POST" enctype="multipart/form-data">
+                        <div asp-validation-summary="All"></div>
+
+                        @* Image inputs and previews *@
+                        @for (int i = 0; i < 4; i++)
+                        {
+                            // Retrieve the image path from the list
+                            var imagePath = i < imagePathsList.Count ? imagePathsList[i] : null;
+                            <div class="row mb-3" id="image-input-@(i)">
+                                <div class="col-4">
+                                    <p class="pt-1 fw-bold">Product Image @(i + 1):</p>
+                                </div>
+                                <div class="col-6">
+                                    <input type="file" name="ImageFiles" class="form-control image-upload @((imagePath == null) ? "" : "d-none")" accept="image/*">
+                                    <div class="image-preview" id="preview-@(i)">
+                                        @if (imagePath != null)
+                                        {
+                                            <img src="@imagePath" class="img-fluid" alt="Image Preview">
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeImage('@i')">Remove</button>
+                                </div>
+                            </div>
+                        }
+
+                        @* Product Name, Category, Sizes, Description, and Price fields *@
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <p class="pt-1 fw-bold">Product Name:</p>
+                            </div>
+                            <div class="col-8">
+                                <input asp-for="ProductName" class="form-control w-80" value="@Model.ProductName" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <p class="pt-1 fw-bold">Product Category:</p>
+                            </div>
+                            <div class="col-8">
+                                <select id="ProductCategoryDropdown" asp-for="ProductCategory" asp-items="@Html.GetEnumSelectList(typeof(Category))" class="form-select w-80">
+                                    <option value=""><strong>Select Category</strong></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <p class="pt-1 fw-bold">Available Sizes:</p>
+                            </div>
+                            <div id="AvailableSizesContainer" class="col-8"></div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <p class="pt-1 fw-bold">Description:</p>
+                            </div>
+                            <div class="col-8">
+                                <textarea asp-for="ProductDescription" class="form-control" id="exampleFormControlTextarea1" rows="3" maxlength="250">@Model.ProductDescription</textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-row-reverse w-100">
+                            <div class="p-2">
+                                <a asp-controller="Admin" asp-action="Products" class="btn btn-outline-secondary btn-cancel fw-bold">Cancel</a>
+                            </div>
+                            <div class="p-2">
+                                <input type="hidden" name="id" asp-for="ProductID" value="@Model.ProductID" />
+                                <button type="submit" class="btn btn-outline-secondary btn-save fw-bold" onclick="return(beforeEdit())">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var fileInputs = document.querySelectorAll(".image-upload");
+        fileInputs.forEach(function (input, index) {
+            input.addEventListener("change", function () {
+                var nextInputIndex = index + 1;
+                if (nextInputIndex < fileInputs.length) {
+                    document.getElementById("image-input-" + nextInputIndex).classList.remove("d-none");
+                }
+
+                // Show the clear button when a file is selected
+                var clearButtonId = "clear-button-" + index;
+                var clearButton = document.getElementById(clearButtonId);
+                clearButton.classList.remove("d-none");
+            });
+        });
+    });
+
+    function clearInput(inputId) {
+        var inputContainer = document.getElementById(inputId);
+        var input = inputContainer.querySelector(".image-upload");
+        var preview = input.getAttribute("data-preview");
+        input.value = null; // Clear the file input
+        var previewElement = document.querySelector(preview);
+        previewElement.innerHTML = ""; // Clear the preview
+        inputContainer.classList.add("d-none"); // Hide the input container
+
+        // Hide the clear button when input is cleared
+        var clearButton = inputContainer.querySelector(".btn-outline-danger");
+        clearButton.classList.add("d-none");
+    }
+
+    function removeImage(index) {
+        // Clear the file input value
+        var input = document.getElementById("image-input-" + index).querySelector(".image-upload");
+        input.value = null;
+
+        // Remove the image preview
+        var preview = document.getElementById("preview-" + index);
+        preview.innerHTML = "";
+
+        // Show the corresponding file input
+        input.classList.remove("d-none");
+
+        // Add a hidden input field to pass the index of the removed image to the backend
+        var hiddenInput = document.createElement("input");
+        hiddenInput.setAttribute("type", "hidden");
+        hiddenInput.setAttribute("name", "RemovedImageIndexes");
+        hiddenInput.setAttribute("value", index);
+        document.querySelector("form").appendChild(hiddenInput);
+    }
+
+</script>

@@ -1,0 +1,108 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model UserCart
+@{
+    decimal total = 0;
+    foreach (var product in Model.Products)
+    {
+        var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+        total += additionalPrice * product.Quantity;
+    }
+}
+<br />
+<br />
+<div class="container">
+    @if (Model.Products.Count == 0)
+    {
+        <div class="empty-cart p-3 shadow">
+            <p><i class="fa-solid fa-cart-plus"></i> Your Cart is Empty!</p>
+        </div>
+        <br />
+
+
+        <a class="text-decoration-none" asp-area="" asp-controller="User" asp-action="Category1">
+            <button type="button" class="checkout-btn">CONTINUE SHOPPING</button>
+        </a>
+    }
+    else
+    {
+        <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">Your Cart</h1>
+        <div class="small-container cart-page shadow pb-4 ">
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+                @foreach (var product in Model.Products)
+                {
+                    var firstImagePath = product.Product.ImagePaths.FirstOrDefault(); // Get the first image path of the product
+                    var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+                    var totalPrice = additionalPrice;
+                    var subtotalPrice = product.Quantity * totalPrice;
+                    <tr>
+                        <td>
+                            <div class="cart-info">
+                                <a asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.Product.ProductID">
+                                    @if (!string.IsNullOrEmpty(product.CustomImagePath))
+                                    {
+                                        <img src="@product.CustomImagePath" alt="custom-product">
+                                    }
+                                    else if (!string.IsNullOrEmpty(firstImagePath))
+                                    {
+                                        <img src="@firstImagePath" alt="product">
+                                    }
+                                    else
+                                    {
+                                        <span>No image available</span>
+                                    }
+                                </a>
+                                <div>
+                                    <a asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.Product.ProductID">
+                                        <p>@product.Product.ProductName</p>
+                                    </a>
+                                    <small>Selected Size: @product.SelectedSize</small><br>
+                                    <small>Price: ₱@totalPrice.ToString("0.00")</small><br>
+                                    <form asp-controller="User" asp-action="RemoveFromCart" method="post">
+                                        <input type="hidden" name="id" value="@product.Product.ProductID" />
+                                        <button type="submit" class="remove-cart"><i class="fa-solid fa-trash"></i> Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <form asp-controller="User" asp-action="UpdateQuantity" method="post">
+                                <input class="mb-1" name="quantity" id="quantity" type="number" value="@product.Quantity"/>
+                                <input type="hidden" name="productId" value="@product.Product.ProductID"/>
+                                <button type="submit" class="hero-btn">Change Quantity</button>
+                            </form>
+                        </td>
+                        <td><strong>₱@subtotalPrice.ToString("0.00")</strong></td>
+                    </tr>
+                }
+            </table>
+
+            <div class="total-price">
+                <table>
+                    <tr>
+                        <td>Total Price:</td>
+                        <td><strong>₱ @total.ToString("0.00")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="text-decoration-none" asp-area="" asp-controller="User" asp-action="Checkout">
+                                <button type="button" class="checkout-btn">CHECKOUT</button>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="text-decoration-none" asp-area="" asp-controller="User" asp-action="Category1">
+                                <button type="button" class="checkout-btn">CONTINUE SHOPPING</button>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    }
+</div>

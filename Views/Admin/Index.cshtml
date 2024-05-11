@@ -1,0 +1,112 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@model SELENE_STUDIO.ViewModels.AdminDashboardViewModel
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<div class="container">
+    <h1 class="large-text text-center mt-5 fw-bold pb-5">DASHBOARD</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-2 mb-4">
+            <a href="@Url.Action("Products", "Admin")" class="text-light">
+                <div class="card mx-2" style="background-color: #F67C4A;">
+                    <div class="card-body">
+                        <p class="large-text text-center text-light my-4"><i class="fa-solid fa-box-open fa-6x text-light"></i></p>
+                        <p class="text-center mt-2 fw-bold text-light">PRODUCTS</p>
+                    </div>
+                </div>
+            </a>            
+        </div>
+
+        <div class="col-md-2 mb-4">
+            <a href="@Url.Action("ListOrders", "Admin")" class="text-light">
+                <div class="card mx-2" style="background-color: #90A6BB;">
+                    <div class="card-body">
+                        <p class="large-text text-center text-light my-4"><i class="fa-solid fa-list-check fa-6x text-light"></i></p>
+                        <p class="text-center mt-2 fw-bold text-light">ORDERS<span id="ordersBadge"></span></p>
+                    </div>
+                </div>
+            </a>            
+        </div>
+
+        <div class="col-md-2 mb-4">
+            <a href="@Url.Action("Sales", "Admin")" class="text-light">
+                <div class="card mx-2" style="background-color: #EBB1A6;">
+                    <div class="card-body">
+                        <p class="large-text text-center text-light my-4"><i class="fa-solid fa-chart-line fa-6x text-light"></i></p>
+                        <p class="text-center mt-2 fw-bold text-light">SALES</p>
+                    </div>
+                </div>
+            </a>          
+        </div>
+
+        <div class="col-md-2 mb-4">
+            <a href="@Url.Action("ViewConversations", "Admin")" class="text-light">
+                <div class="card mx-2" style="background-color: #F0A93F;">
+                    <div class="card-body">
+                        <p class="large-text text-center text-light my-4"><i class="fa-regular fa-comments fa-6x text-light"></i></p>
+                        <p class="text-center mt-2 fw-bold text-light">MESSAGES<span id="messagesBadge"></span></p>
+                    </div>
+                </div>
+            </a>          
+        </div>
+
+        <div class="col-md-2 mb-4">
+            <a href="@Url.Action("FeedbackList", "Admin")" class="text-light">
+                <div class="card mx-2" style="background-color: #F6D882;">
+                    <div class="card-body">
+                        <p class="large-text text-center text-light my-4"><i class="fa-regular fa-comment-dots fa-6x text-light"></i></p>
+                        <p class="text-center mt-2 fw-bold text-light">FEEDBACK</p>
+                    </div>
+                </div>
+            </a>           
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let accountBadge = null; // Initialize variable to store the account badge
+        function getNotifications() {
+            console.log('Fetching notifications...');
+            fetch('/Admin/GetNotifications')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data); // Log received data for debugging
+                    const messagesBadge = document.getElementById('messagesBadge');
+                    console.log('Messages badge element:', messagesBadge);
+                    messagesBadge.innerHTML = data.newMessagesCount > 0 ? '<span class="badge bg-danger">' + data.newMessagesCount + '</span>' : '';
+                    // Update orders indicator
+                    const ordersBadge = document.getElementById('ordersBadge');
+                    console.log('Orders badge element:', ordersBadge);
+                    ordersBadge.innerHTML = data.newOrdersCount > 0 ? '<span class="badge bg-danger">' + data.newOrdersCount + '</span>' : '';
+                })
+                .catch(error => console.error("Error:", error));
+        }
+        // Poll for updates every 60 seconds
+        setInterval(getNotifications, 5000);
+        // Initial call to get notifications on page load
+        getNotifications();
+    });
+</script>
+
+
+
+
+
+
+

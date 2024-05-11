@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model Order[]
+
+<div class="container">
+    <div class="mt-5">
+        <h1 class="large-text mt-5 fw-bold pb-5">
+            <a href="@Url.Action("Index", "Admin")" class="text-dark text-decoration-none">
+                <i class="fa-solid fa-circle-chevron-left"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;List of Orders&nbsp;&nbsp;&nbsp;           
+        </h1>
+
+        <!-- Pagination -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="page-nav">
+                <ul class="pagination justify-content-center">
+                    @for (var i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("ListOrders", "Admin", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+        <table class="order-table shadow">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Order #</th>
+                    <th scope="col" class="text-center">Date</th>
+                    <th scope="col" class="text-center">Customer</th>
+                    <th scope="col" class="text-center">Contact No.</th>
+                    <th scope="col" class="text-center">Location</th>
+                    <th scope="col" class="text-center">Total</th>
+                    <th scope="col" class="text-center">Status</th>
+                    <th scope="col" class="text-center">Payment</th>
+                    <th scope="col" class="text-center"></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        
+                        <td scope="row" class="pt-3 text-center">
+                            <span>
+                                @if ((order.Date > ViewBag.CurrentUser.SessionEndTime && order.Date < ViewBag.CurrentUser.SessionStartTime) ||
+                               (order.PaymentStatus == PaymentStatus.Pending && !string.IsNullOrEmpty(order.UploadedImagePath)))
+                                {
+                                    <span class="badge bg-primary">NEW</span>
+                                }
+                                #@(order.OrderNumber)
+                            </span>
+                        </td>
+                        
+                        <td class="pt-3 text-center">@(order.Date)</td>
+                        <td class="pt-3 text-center">@(order.Customer.FirstName)</td>
+                        <td class="pt-3 text-center">@(order.Customer.PhoneNumber)</td>
+                        <td class="pt-3 text-center">@(order.DeliveryAddress)</td>
+                        <td class="pt-3 text-center">@(order.TotalPrice)</td>
+                        <td class="pt-2 text-center ps-2">
+                            <select class="form-select" name="orderStatus" disabled>
+                                <option value="Shipped" selected="@(order.OrderStatus == OrderStatus.Shipped)">Shipped</option>
+                                <option value="Completed" selected="@(order.OrderStatus == OrderStatus.Completed)">Completed</option>
+                                <option value="Accepted" selected="@(order.OrderStatus == OrderStatus.Accepted)">Accepted</option>
+                                <option value="Processing" selected="@(order.OrderStatus == OrderStatus.Processing)">Processing</option>
+                                <option value="Cancelled" selected="@(order.OrderStatus == OrderStatus.Cancelled)">Cancelled</option>
+                                <option value="Pending" selected="@(order.OrderStatus == OrderStatus.Pending)">Pending</option>
+                            </select>
+                        </td>
+                        <td class="pt-2 text-center">
+                            <select class="form-select" name="paymentStatus" disabled>
+                                <option value="Paid" selected="@(order.PaymentStatus == PaymentStatus.Paid)">Paid</option>
+                                <option value="Pending" selected="@(order.PaymentStatus == PaymentStatus.Pending)">Pending</option>
+                                <option value="Unpaid" selected="@(order.PaymentStatus == PaymentStatus.Unpaid)">Unpaid</option>
+                            </select>
+                        </td>
+                        <td scope="row" class="pt-3 text-center">
+                            <a asp-area="" asp-controller="Admin" asp-action="Order" asp-route-id="@order.OrderNumber">
+                                <button type="button" class="btn btn-outline-secondary btn-update">
+                                    @if ((order.Date > ViewBag.CurrentUser.SessionEndTime && order.Date < ViewBag.CurrentUser.SessionStartTime) ||
+                                   (order.PaymentStatus == PaymentStatus.Pending && !string.IsNullOrEmpty(order.UploadedImagePath)))
+                                    {
+                                        <span class="badge bg-primary">NEW</span>
+                                    }
+                                    Update
+                                </button>
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        
+    </div>
+</div>

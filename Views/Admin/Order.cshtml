@@ -1,0 +1,303 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@model Order
+@{
+    decimal total = 0;
+    foreach (var product in Model.Products)
+    {
+        var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+
+        total += additionalPrice * product.Quantity;
+    }
+}
+<style>
+    /* Center modal vertically and horizontally */
+    .modal {
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Ensure modal content does not exceed viewport */
+    .modal-dialog {
+        max-width: 90%;
+        max-height: 90%;
+        align-items: center;
+    }
+
+    /* Adjust modal body padding if needed */
+    .modal-body {
+        padding: 1rem;
+    }
+</style>
+
+<script>
+    var uploadedImagePath = "@Model.UploadedImagePath";
+</script>
+<div class="container pt-6">
+    <div class="row mt-5"> 
+        <h1 class="large-text mt-5 fw-bold pb-5">
+            &nbsp;&nbsp;&nbsp
+            <a href="@Url.Action("ListOrders", "Admin")" class="text-dark text-decoration-none">
+                <i class="fa-solid fa-circle-chevron-left"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;ORDER # @Model.OrderNumber&nbsp;&nbsp;&nbsp;
+        </h1>
+        <div class="col-8">
+            <div class="card-body-orders" style="width: 100%; height: 100%;">
+                <div class="card-body">
+                    
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-center">Image</th>
+                                <th scope="col" class="text-center">Product</th>
+                                <th scope="col" class="text-center">Size</th>
+                                <th scope="col" class="text-center">Price</th>
+                                <th scope="col" class="text-center">Quantity</th>
+                                <th scope="col" class="text-center">Total</th>
+                                <th scope="col" class="text-center">Payment Method</th>
+                                <th scope="col" class="text-center">Delivery Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in Model.Products)
+                            {
+                                <tr>
+                                    <div class="text-center">
+                                        @if (!string.IsNullOrEmpty(product.CustomImagePath))
+                                        {
+                                        <td>
+                                            <a href="#" class="image-modal-trigger" data-target="#imageModal" data-toggle="modal" data-src="@product.CustomImagePath">
+                                                <img width="50" height="50" src="@product.CustomImagePath" alt="Custom Image" class="text-center" />
+                                            </a>
+                                        </td>
+                                        }
+                                        else if (product.Product.ImagePaths != null && product.Product.ImagePaths.Any())
+                                        {
+                                        <td>
+                                            <a href="#" class="image-modal-trigger" data-target="#imageModal" data-toggle="modal" data-src="@product.Product.ImagePaths.First()">
+                                                <img width="50" height="50" src="@product.Product.ImagePaths.First()" alt="Product Image" class="text-center" />
+                                            </a>
+                                        </td>
+                                        }
+                                        else
+                                        {
+                                        <span>No image available</span>
+                                        }
+                </div>
+                    <td class="pt-3 text-center">@product.Product.ProductName</td>
+                    <td class="pt-3 text-center">@product.SelectedSize</td>
+
+                                    @{
+                                        var additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+                                        var totalPrice = additionalPrice;
+                                        var priceQua = totalPrice * product.Quantity;
+                                    }
+                    <td class="pt-3 text-center">₱ @totalPrice.ToString("0.00")</td>
+                    <td class="pt-3 text-center">
+                        <input type="number" class="form-control" value="@product.Quantity" disabled>
+                    </td>
+                    <td class="pt-3 text-center">
+                                        @priceQua.ToString("0.00")
+                    </td>
+                    <td class="pt-3 text-center">@(Model.PaymentMethod)</td>
+                    <td class="pt-3 text-center">@(Model.DeliveryMode)</td>
+                    </tr>
+                                @if (!string.IsNullOrEmpty(product.CustomDescription))
+                                {
+                        <tr>
+
+                            <td colspan="8" class="text-center"><h3>Custom Description</h3><br /><p>@product.CustomDescription</p></td>
+                        </tr>
+                                }
+                            }
+                </tbody>
+                </table>
+                    @if (!string.IsNullOrEmpty(Model.UploadedImagePath))
+                    {
+                    <div class="text-center">
+                        <img src="@Model.UploadedImagePath" alt="Uploaded Image" class="img-fluid mt-3" />
+                    </div>
+                    }
+            </div>
+        </div>
+
+        <div class="card-body-orders mt-3">
+            <div class="card">
+                <div class="card-body-orders p-3">
+                    <h1 class="large-text mt-5 fw-bold pb-5 text-center">Customer Details</h1>
+                    <h5 class="card-text"><b class="text-color">Name:</b> @Model.Customer.FirstName @Model.Customer.LastName</h5>
+                    <h5 class="card-text"><b class="text-color">Contact Number:</b> @Model.Customer.PhoneNumber</h5>
+                    <h5 class="card-text"><b class="text-color">Address:</b>  @Model.Customer.Address</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+ 
+    <div class="col-4 pt-5 text-center order-status-container">
+        <div class="d-flex flex-column">
+            <form asp-area="" asp-controller="Admin" asp-action="UpdateOrder" enctype="multipart/form-data">
+                <input type="hidden" name="orderNumber" value="@Model.OrderNumber" />
+                <div class="d-flex flex-row justify-content-center">
+                    <div class="d-flex flex-column w-100">
+                        <h5 class="text-color">Order Status</h5>
+                        <select class="form-select" name="orderStatus">
+                                @if (Model.OrderStatus == OrderStatus.Pending)
+                                {
+                                <option value="Pending" selected="@(Model.OrderStatus == OrderStatus.Pending)">Pending</option>
+                                <option value="Accepted" selected="@(Model.OrderStatus == OrderStatus.Accepted)">Accepted</option>
+                                <option value="Cancelled" selected="@(Model.OrderStatus == OrderStatus.Cancelled)">Cancelled</option>
+                                }
+
+                                else if (Model.OrderStatus == OrderStatus.Processing)
+                                {
+                                <option value="Accepted" selected="@(Model.OrderStatus == OrderStatus.Accepted)">Accepted</option>
+                                <option value="Processing" selected="@(Model.OrderStatus == OrderStatus.Processing)">Processing</option>
+                                <option value="Shipped" selected="@(Model.OrderStatus == OrderStatus.Shipped)">Shipped</option>
+                                <option value="Cancelled" selected="@(Model.OrderStatus == OrderStatus.Cancelled)">Cancelled</option>
+                                }
+                                else if (Model.OrderStatus == OrderStatus.Accepted)
+                                {
+                                <option value="Accepted" selected="@(Model.OrderStatus == OrderStatus.Accepted)">Accepted</option>
+                                <option value="Processing" selected="@(Model.OrderStatus == OrderStatus.Processing)">Processing</option>
+                                <option value="Cancelled" selected="@(Model.OrderStatus == OrderStatus.Cancelled)">Cancelled</option>
+                                }
+                                else if (Model.OrderStatus == OrderStatus.Shipped)
+                                {
+                                <option value="Shipped" selected="@(Model.OrderStatus == OrderStatus.Shipped)">Shipped</option>
+                                <option value="Completed" selected="@(Model.OrderStatus == OrderStatus.Completed)">Completed</option>
+                                }
+                                else if (Model.OrderStatus == OrderStatus.Cancelled)
+                                {
+                                <option value="Cancelled" selected="@(Model.OrderStatus == OrderStatus.Cancelled)">Cancelled</option>
+                                }
+                                else if (Model.OrderStatus == OrderStatus.Completed)
+                                {
+                                <option value="Completed" selected="@(Model.OrderStatus == OrderStatus.Completed)">Completed</option>
+                                }
+                        </select>
+                    </div>
+                    <div class="d-flex flex-column w-100">
+                        <h5 class="text-color">Payment Status</h5>
+                        <select class="form-select" name="paymentStatus" @((Model.OrderStatus == OrderStatus.Processing || Model.OrderStatus == OrderStatus.Shipped || Model.OrderStatus == OrderStatus.Completed) || string.IsNullOrEmpty(Model.UploadedImagePath) ? "disabled" : "")>
+                            <option value="Pending" selected="@(Model.PaymentStatus == PaymentStatus.Pending)">Pending</option>
+                            <option value="Paid" selected="@(Model.PaymentStatus == PaymentStatus.Paid)">Paid</option>
+                            <option value="Unpaid" selected="@(Model.PaymentStatus == PaymentStatus.Unpaid)">Unpaid</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <div class="d-flex flex-row justify-content-center">
+                    <button type="submit" class="btn btn-outline-secondary btn-update fw-bold" id="updateButton">Update Order</button>
+
+                        @if ((Model.OrderStatus == OrderStatus.Completed || Model.OrderStatus == OrderStatus.Cancelled) && Model.IsDeleted == true)
+                        {
+                        <button asp-area="" asp-controller="Admin" asp-action="DeleteOrder" asp-route-id="@Model.OrderNumber" class="btn btn-outline-dark btn-cancel fw-bold" id="deleteButton">Delete</button>
+                        }
+                    &nbsp &nbsp &nbsp &nbsp
+                    <button type="submit" class="btn btn-outline-secondary btn-cancel" asp-action="ListOrders" asp-controller="Admin">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-5 total-container">
+            <div class="mt-5 p-5">
+                <p class="fs-1 fw-bolder text-color">TOTAL</p>
+                <p class="fs-1 fw-bolder text-center text-light">@total</p>
+            </div>
+        </div>
+            @if (TempData["UploadMessage"] != null)
+            {
+            <div class="alert alert-@(TempData["UploadMessageType"]) alert-dismissible fade show" role="alert">
+                    @TempData["UploadMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            }
+    </div>
+ 
+</div>
+
+<!-- Modal -->
+<div class="modal" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="img-fluid" src="" alt="Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript to handle image modal
+    $(document).ready(function () {
+        $('.image-modal-trigger').click(function () {
+            var src = $(this).data('src');
+            $('#modalImage').attr('src', src);
+        });
+    });
+</script>
+
+<!-- Modify the JavaScript function to update payment status -->
+<script>
+    $(document).ready(function () {
+        function updatePaymentStatus(orderStatus) {
+            var paymentStatusSelect = $('select[name="paymentStatus"]');
+            // Update payment status based on order status
+            if (orderStatus === "Accepted" || orderStatus === "Pending") {
+                paymentStatusSelect.val("Pending");
+            } else if (orderStatus === "Processing") {
+                paymentStatusSelect.val("Paid");
+            } else if (orderStatus === "Cancelled") {
+                paymentStatusSelect.val("Unpaid");
+            } else if (orderStatus === "Shipped" || orderStatus === "Completed") {
+                paymentStatusSelect.val("Paid");
+            }
+            // Enable/disable payment status select based on order status
+            if (orderStatus === "Processing" || orderStatus === "Shipped" || orderStatus === "Completed" || orderStatus === "Accepted" || orderStatus === "Cancelled" || orderStatus === "Pending") {
+                paymentStatusSelect.prop('disabled', true);
+            } else {
+                paymentStatusSelect.prop('disabled', false);
+            }
+            // Disable order status select if no uploaded image path and order status is Accepted
+            var uploadedImagePath = "@Model.UploadedImagePath";
+            if (orderStatus === "Accepted" && !uploadedImagePath) {
+                $('select[name="orderStatus"]').prop('disabled', true);
+            } else {
+                $('select[name="orderStatus"]').prop('disabled', false);
+            }
+        }
+
+        // Event listener for order status change
+        $('select[name="orderStatus"]').change(function () {
+            var orderStatus = $(this).val();
+            updatePaymentStatus(orderStatus);
+        });
+
+        // Event listener for form submission
+        $('form').submit(function () {
+            // Enable payment status field before form submission
+            $('select[name="orderStatus"]').prop('disabled', false);
+            $('select[name="paymentStatus"]').prop('disabled', false);
+        });
+
+        // Initial call to update payment status based on initial order status
+        var initialOrderStatus = $('select[name="orderStatus"]').val();
+        updatePaymentStatus(initialOrderStatus);
+    });
+</script>
+
+
+
+

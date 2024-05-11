@@ -1,0 +1,83 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model Product[]
+
+<div id="carouselExampleCaptions" class="carousel slide carousel-fade" data-ride="carousel">
+    <div class="carousel-inner shadow">
+        <div class="carousel-item-prod">
+            <img src="~/products/images/slide1.jpg" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+                <h2>Selene Studio Products</h2>
+                <p>Customize the product with your own personal touch!</p>
+            </div>
+        </div>
+        
+</div>
+
+
+<div class="container-product">
+    <div class="container">
+        <div class="row mb-5 m-5">
+            @foreach (var product in Model)
+            {
+                <div class="col-4">
+                    <div class="pb-5">
+                        
+                            <div class="product-card">
+                                <a asp-area="" asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.ProductID" class="text-decoration-none">
+                                    @if (product.ImagePaths != null && product.ImagePaths.Any())
+                                    {
+                                        <img src="@product.ImagePaths.First()" alt="product" class="img-fluid w-100 object-fit">
+                                    }
+                                    else
+                                    {
+                                        <span>No image available</span>
+                                    }
+                                    @if (ViewBag.CurrentUser != null)
+                                    {
+                                        if (product.DateCreated > ViewBag.CurrentUser.SessionEndTime && product.DateCreated < ViewBag.CurrentUser.SessionStartTime)
+                                        {
+                                            <span class="badge bg-primary">NEW</span>
+                                        }
+                                    }
+
+                                </a>
+                                <div class="prod-details">
+                                    <a asp-area="" asp-controller="User" asp-action="ViewProduct" asp-route-id="@product.ProductID" class="text-decoration-none" style="color: #F67E4E; text-decoration: none;">
+                                        <center><p>@product.ProductName</p></center>
+                                    </a>
+                                </div>
+                                <div class="add-to-cart-input">
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        @if (TempData[$"ErrorMessage_{product.ProductID}"] != null)
+                                        {
+                                            <div class="alert alert-danger">@TempData[$"ErrorMessage_{product.ProductID}"]</div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            
+                    </div>
+                </div>
+            }
+
+
+        </div>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" href="?page=@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+</div>

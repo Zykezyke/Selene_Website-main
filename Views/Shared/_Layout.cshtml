@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Selene Printing Studio</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" asp-append-version="true"/>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="~/css/global.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'/>
+
+</head>
+<body>
+    <nav class="shadow main-nav fixed-top">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="logo">
+                <a class="fw-bold" aria-current="page" asp-area="" asp-controller="User" asp-action="Home"><img class="logo" src="/images/logo.png" /></a>
+            </div>
+            <a class="navbar-brand" asp-area="" asp-controller="Admin" asp-action="Index">
+                <button type="button" class="btn btn-link text-light">Go back to Admin View</button>
+            </a>
+            <ul id="menuList">
+                <li><a class="fw-bold" aria-current="page" asp-area="" asp-controller="User" asp-action="Home"><i class="fa-solid fa-house"></i>&nbsp; Home</a></li>
+                <li><a class="fw-bold" asp-area="" asp-controller="User" asp-action="About"><i class="fa-solid fa-circle-info"></i>&nbsp; About</a></li>
+                <li><a class="fw-bold" asp-area="" asp-controller="User" asp-action="Category1"><i class="fa-solid fa-bag-shopping"></i>&nbsp; Products</a></li>
+            </ul>
+        }
+        else
+        {
+            <div class="logo">
+                <a class="fw-bold" aria-current="page" asp-area="" asp-controller="User" asp-action="Home"><img class="logo" src="/images/logo.png" /></a>
+            </div>
+            <ul id="menuList">
+                <li><a class="fw-bold" aria-current="page" asp-area="" asp-controller="User" asp-action="Home"><i class="fa-solid fa-house"></i> Home</a></li>
+                <li><a class="fw-bold" asp-area="" asp-controller="User" asp-action="About"><i class="fa-solid fa-circle-info"></i> About</a></li>
+                <li id="productsIndicator"><a class="fw-bold" asp-area="" asp-controller="User" asp-action="Category1"><i class="fa-solid fa-box"></i> Products</a><span id="productsBadge"></span></li>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li>
+                        <a asp-area="" asp-controller="User" asp-action="UserProfile" class="fw-bold"><i class="fa-solid fa-circle-user"></i> Account <i class="fa-solid fa-caret-down"></i></a>
+                        <ul class="drop">
+                            <li><a class="fw-bold" asp-area="" asp-controller="User" asp-action="Orders"><i class="fa-solid fa-bars-staggered"></i>      Order History</a><span id="ordersBadge"></span></li>
+                            <li id="messagesIndicator"><a class="fw-bold" asp-area="" asp-controller="User" asp-action="ViewConversation"><i class="fa-solid fa-message"></i> Messages</a> <span id="messagesBadge"></span></li>
+                            <li><a class="fw-bold" asp-area="" asp-controller="Account" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i>  Logout</a></li>
+                        </ul>
+                    </li>
+                    <li><a asp-area="" asp-controller="User" asp-action="Cart" class="text-decoration-none"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                }
+                else
+                {
+                    <li><a class="fw-bold" asp-area="" asp-controller="Account" asp-action="Login" class="text-decoration-none"><i class="fa-regular fa-circle-user"></i>&nbsp; Login/Register</a></li>
+                }
+            </ul>
+        }
+        <div class="menu-icon">
+            <i class="fa-solid fa-bars" onclick="toggleMenu()"></i>
+        </div>
+    </nav>
+
+    <script>
+        let menuList = document.getElementById("menuList")
+        menuList.style.maxHeight = "0px";
+
+        function toggleMenu() {
+            if (menuList.style.maxHeight == "0px") {
+                menuList.style.maxHeight = "700px";
+            }
+            else {
+                menuList.style.maxHeight = "0px";
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let accountBadge = null; // Initialize variable to store the account badge
+
+            function getNotifications() {
+                if (@User.Identity.IsAuthenticated.ToString().ToLower()) {
+                    console.log('Fetching notifications...');
+                    fetch('/User/GetNotifications')
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Received data:', data); // Log received data for debugging
+
+                            // Update messages indicator
+                            const messagesBadge = document.getElementById('messagesBadge');
+                            console.log('Messages badge element:', messagesBadge);
+                            messagesBadge.innerHTML = data.newMessagesCount > 0 ? '<span class="badge bg-danger">' + data.newMessagesCount + '</span>' : '';
+
+                            // Update products indicator
+                            const productsBadge = document.getElementById('productsBadge');
+                            console.log('Products badge element:', productsBadge);
+                            productsBadge.innerHTML = data.newProductsCount > 0 ? '<span class="badge bg-danger">' + data.newProductsCount + '</span>' : '';
+
+                            // Update orders indicator
+                            const ordersBadge = document.getElementById('ordersBadge');
+                            console.log('Orders badge element:', ordersBadge);
+                            ordersBadge.innerHTML = data.changedOrdersCount > 0 ? '<span class="badge bg-danger">' + data.changedOrdersCount + '</span>' : '';
+
+                            // Calculate total notifications
+                            const totalNotifications = data.newMessagesCount + data.changedOrdersCount;
+                            console.log('Total notifications:', totalNotifications);
+
+                            // Update account dropdown notification
+                            if (totalNotifications > 0) {
+                                if (!accountBadge) { // If account badge does not exist, create it
+                                    const accountDropdown = document.querySelector('.drop');
+                                    accountBadge = document.createElement('span');
+                                    accountBadge.classList.add('badge', 'bg-danger', 'account-badge');
+                                    accountBadge.textContent = totalNotifications;
+                                    accountDropdown.parentNode.appendChild(accountBadge);
+                                } else { // If account badge already exists, update its content
+                                    accountBadge.textContent = totalNotifications;
+                                }
+                            } else { // If there are no notifications, remove the account badge if it exists
+                                if (accountBadge) {
+                                    accountBadge.remove();
+                                    accountBadge = null; // Reset the account badge variable
+                                }
+                            }
+                        })
+                        .catch(error => console.error("Error:", error));
+                }
+            }
+
+            // Poll for updates every 60 seconds
+            setInterval(getNotifications, 5000);
+
+            // Initial call to get notifications on page load
+            getNotifications();
+        });
+    </script>
+
+
+
+
+
+
+    <div class="container-body mt-5">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="shadow">
+        <div class="footer-content">
+            <img src="~/images/logo.png" alt="Alternate Text" />
+            <p><i class="fa-solid fa-envelope pr-2"></i>Seleneprintingstudio@gmail.com</p>
+        </div>
+        <ul class="socials">
+            <li><a href="https://www.facebook.com/profile.php?id=61551751817701"><i class="fa-brands fa-square-facebook"></i></a></li>
+            <li><a href="https://l.facebook.com/l.php?u=https%3A%2F%2Fwww.instagram.com%2Fseleneprintingstudio%2F%3Ffbclid%3DIwZXh0bgNhZW0CMTAAAR3qKMQPwdyJiBk-6Ad73I_1lgI14nIwHv3Z_3wNB-XdGmU0A_XoQ0ZvLsE_aem_AWI27RdOL2E7hxyxumx1um3rvmsYrgw_L_UBByUaYF_Obf3DZq0iqBAvPmTNbt6SeR8G5qCZKaHt14PyNhlvmSEa&h=AT0X1ignsfkMS2X9uSmHJbEDOiHAMQwOQh0rZk5I01xgqgUEDuU61DsWFSNnUhwBNKB861XLNbfJ0z1LrPhIoCEtY5dw-hifHtRzAVbY022SYpXfgHvwDTjT9nweSSW36ObtvQ"><i class="fa-brands fa-square-instagram"></i></a></li>
+        </ul>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+

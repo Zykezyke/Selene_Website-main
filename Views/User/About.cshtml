@@ -1,0 +1,123 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container">
+<div class="row about-row">
+    <div class="imgWrapper">
+        <img src="~/products/images/slide2.jpg"/>
+    </div>
+    <div class="contentWrapper">
+        <div class="content">
+            <h1>About Us</h1>
+            <h2>Selene Printing Studio</h2>
+            <p>
+           We at Selene Printing Studio aim to provide premium printing solutions tailored to both individuals and businesses. We're a dedicated team passionate about bringing your ideas to life in print.
+                <br /><br />
+                We deliver high-quality paper products on time and within budget.  From custom designs to personalized products, we're here to help you make a statement with every print job.
+                <br /><br />
+                With attention to detail and a commitment to quality, we're your go-to destination for all your printing needs. We can also cater printing services to events such as birthdays, baptismal, corporate events, weddings, etc.
+                <br /><br/>
+                Let us bring your vision to life with our premium printing service!     
+            </p>
+                <a asp-area="" asp-controller="User" asp-action="Category1"><button class="fw-bold">Start Shopping</button></a>
+        </div>
+    </div>
+</div>
+</div>
+
+<hr />
+
+<div class="container">
+    <div class="wrapper">
+        <h1>Frequently Asked Questions </h1>
+
+        <div class="faq active">
+            <button class="accordion">
+                How long does it take to process orders?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>As much as we want to process orders quickly, we can only process personalized orders within 5-7 days during non peak season and from 7-14 days during peak season.</p>
+            </div>
+        </div>
+
+        <div class="faq active">
+            <button class="accordion">
+                Do you also design?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>Yes, we can do basic design and layout for an additional price.</p>
+            </div>
+        </div>
+
+        <div class="faq active">
+            <button class="accordion">
+                What are the payment methods available?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>We accept fund transfers via Gcash or Paymaya.</p>
+            </div>
+        </div>
+
+        <div class="faq active">
+            <button class="accordion">
+                What are the delivery methods available?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>We can deliver completed orders through your preferred couriers such as J&T, Go- Go Express, and LBC. We can also use same day delivery apps like Grab and Lalamove.</p>
+            </div>
+        </div>
+
+        <div class="faq active">
+            <button class="accordion">
+                Can I still change my design?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>Yes, you can. Just message us in the “messages” section and include your order number.</p>
+            </div>
+        </div>
+
+        <div class="faq active">
+            <button class="accordion">
+                Do you offer rush service?
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="pannel">
+                <p>We can accommodate rush service for orders below P1,000.00 with an additional fee of 200 pesos. We will prepare your orders within 48 hours. Feel free to message us on our viber account.</p>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+<script>
+    var acc = document.getElementsByClassName
+        ("accordion");
+    var i;
+
+    for (i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            this.parentElement.classList.toggle("active");
+
+            var pannel = this.nextElementSibling;
+
+            if (pannel.style.display === "block") {
+                pannel.style.display = "none";
+            } else {
+                pannel.style.display = "block";
+            }
+
+        });
+    }
+
+
+</script>
+

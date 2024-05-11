@@ -1,0 +1,291 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model RegisterViewModel
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SELENE STUDIO</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" asp-append-version="true" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="~/css/global.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="container pt-5">
+        <div class="form-box-sign">
+            <br />
+            <center><h1>SIGN UP</h1></center>
+            <form asp-action="Register" asp-controller="Account" method="POST">
+                <div class="input-group text-danger">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-field">
+                                <i class="fa-solid fa-user"></i>
+                                <input asp-for="FirstName" id="FirstName" type="text" placeholder="First Name" required>
+                                <span class="required-asterisk">*</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-field">
+                                <input asp-for="LastName" id="LastName" type="text" placeholder="Last Name" required>
+                                <span class="required-asterisk">*</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input asp-for="Email" type="Email" placeholder="Email" required>
+                        <span class="required-asterisk">*</span>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-phone"></i>
+                        <input asp-for="Contact" type="tel" placeholder="Contact Number" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)" required>
+                        <span class="required-asterisk">*</span>
+                    </div>
+
+                    <div class="input-field">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <input asp-for="Address" placeholder="Delivery Address" required/>
+                        <input asp-for="PostalCode" type="tel" placeholder="Postal Code" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"  required/>
+                        <span class="required-asterisk">*</span>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input asp-for="Password" id="password" type="password" placeholder="Password" required/>
+                        <span class="required-asterisk">*</span>
+                        <span class="password-toggle" onclick="togglePasswordVisibility('password', 'eye-icon')"><i id="eye-icon" class="fa-solid fa-eye-slash"></i></span>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-lock"></i>
+                        <input asp-for="ConfirmPassword" id="confirmPassword" type="password" placeholder="Confirm Password" required/>
+                        <span class="required-asterisk">*</span>
+                        <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword', 'confirm-eye-icon')"><i id="confirm-eye-icon" class="fa-solid fa-eye-slash"></i></span>
+                    </div>
+                    <div id="error-container">
+                        @if (ViewData.ModelState.ContainsKey("EmailExists"))
+                        {
+                            <div class="text-danger">
+                                @Html.ValidationMessage("EmailExists")
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="btn-field">
+                    <button type="button" id="registerButton">Sign Up</button>
+                </div>
+                <a class="a" asp-area="" asp-controller="Account" asp-action="Login">Already have an account</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                    <button type="button" class="btn-close" id="closeModalButton" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Include your terms and conditions here -->
+                    <h5>Acceptance of Terms of Usage</h5>
+                    <p>
+                        These Terms of Usage govern your access and use of this Site. By accessing or using this Site you agree to be bound by these Terms of Usage and to any additional guidelines, restrictions, or rules that may be posted in connection with specific sections or services of this Site. All such additional posted guidelines, restrictions, or rules are hereby incorporated by reference into these Terms of Use.
+                        Selene Printing Studio reserves the right to make changes to this Site and to these Terms of Usage at any time without prior notice. You should review these Terms of Usage each time you access this Site.
+                        You also agree that we may provide all legal communications and notices to you electronically by posting them on our website or, at our election, by sending an e-mail to the e-mail address you provided to us when you registered at our website. You may withdraw your consent to receive communications from us electronically by contacting customer care. However, if you withdraw your consent to receive our communications electronically, you must discontinue your use of your account.
+                    </p>
+
+                    <h5>General</h5>
+                    <p>
+                        Selene Printing Studio is not responsible for the delay and/or damages resulting from Machinery Breakdown, Acts of God, and from other actions, both governmental and otherwise, including but not limited to war, riot, seizure, and embargo.   The tools available on www.seleneprintingstudio.com to create documents are the property of Selene Printing Studio. The Buyer’s order shall be deemed an acceptance of the Seller's terms.  The Terms and conditions shall in all respects be governed by the Philippine law.
+                    </p>
+
+                    <h5>Returns</h5>
+                    <p>
+
+                        Due to the nature of the product, no returns can be made once the order is processed and/or shipped. Any claims for defects, damages, or shortages must be made in writing within two (2) business days after receipt of the merchandise. We will replace only those orders that were processed incorrectly. The replacement of the order will take place only after the receipt of returned merchandise. We will not replace the order if it is determined by us that the order was misused or mishandle by the buyer or part of the order was used by the buyer and part of the order is being returned.
+                    </p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="termsCheckbox">
+                        <label class="form-check-label" for="termsCheckbox">
+                            I agree to the Terms and Conditions
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="privacyCheckbox">
+                        <label class="form-check-label" for="privacyCheckbox">
+                            I agree to the Privacy Policy
+                        </label>
+                    </div>
+                    <div id="checkboxMessage" class="text-danger"></div> <!-- Message area -->
+                </div>
+                <div class="modal-footer">
+                   
+                    <button type="button" class="btn btn-primary" id="agreeButton">Agree and Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.getElementById('registerButton').addEventListener('click', function () {
+            // Validate the form fields
+            if (validateForm()) {
+                document.getElementById('termsModal').style.display = 'block';
+            }
+        });
+
+        function validateForm() {
+            var errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = '';
+            var firstName = document.getElementById('FirstName').value.trim();
+            var lastName = document.getElementById('LastName').value.trim();
+            var email = document.getElementById('Email').value.trim();
+            var contact = document.getElementById('Contact').value.trim();
+            var address = document.getElementById('Address').value.trim();
+            var password = document.getElementById('password').value.trim();
+            var confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            var isValid = true;
+
+            // Remove any existing error messages
+            document.querySelectorAll('.error-message').forEach(function (element) {
+                element.remove();
+            });
+
+            // Check if any field is empty and display error messages
+            if (firstName === '') {
+                displayErrorMessage('First Name is required.', 'FirstName');
+                isValid = false;
+            }
+            if (lastName === '') {
+                displayErrorMessage('Last Name is required.', 'LastName');
+                isValid = false;
+            }
+            if (email === '') {
+                displayErrorMessage('Email is required.', 'Email');
+                isValid = false;
+            }
+            if (contact === '') {
+                displayErrorMessage('Contact Number is required.', 'Contact');
+                isValid = false;
+            } else if (contact.length < 10) {
+                displayErrorMessage('Contact Number must be at least 10 characters.', 'Contact');
+                isValid = false;
+            }
+            if (address === '') {
+                displayErrorMessage('Delivery Address is required.', 'Address');
+                isValid = false;
+            }
+            if (password === '') {
+                displayErrorMessage('Password is required.', 'Password');
+                isValid = false;
+            }
+            if (confirmPassword === '') {
+                displayErrorMessage('Confirm Password is required.', 'ConfirmPassword');
+                isValid = false;
+            }
+
+            // Check if password contains at least one special character, one number, and one capital letter
+            var passwordRegex = /^(?=.*[!@@#$%^&*])(?=.*\d)(?=.*[A-Z]).{8,}$/;
+
+     if (!passwordRegex.test(password)) {
+        displayErrorMessage('Password must contain at least one special character, one number, and one capital letter.', 'Password');
+        isValid = false;
+            } else if (password.length < 8 || password.length > 64) {
+                displayErrorMessage('Password must be between 8 and 64 characters long.', 'Password');
+                isValid = false;
+            }
+            // Check if confirm password matches password and display error message
+            if (password !== confirmPassword) {
+                displayErrorMessage('Password and Confirm Password do not match.', 'ConfirmPassword');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function displayErrorMessage(message, fieldId) {
+            var errorMessage = document.createElement('div');
+            errorMessage.textContent = message;
+            errorMessage.classList.add('text-danger', 'validation');
+
+            var errorContainer = document.getElementById('error-container');
+            errorContainer.appendChild(errorMessage);
+        }
+
+        function closeModal() {
+            document.getElementById('termsModal').style.display = 'none';
+        }
+
+        document.getElementById('closeButton').addEventListener('click', closeModal);
+
+
+
+
+    </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const firstNameInput = document.getElementById('FirstName');
+            const lastNameInput = document.getElementById('LastName');
+
+            firstNameInput.addEventListener('input', (event) => {
+                event.target.value = event.target.value.replace(/[^a-zA-Z\s'-]/g, '');
+            });
+
+            lastNameInput.addEventListener('input', (event) => {
+                event.target.value = event.target.value.replace(/[^a-zA-Z\s'-]/g, '');
+            });
+
+            // Reset the message when checkboxes are clicked
+            document.getElementById('termsCheckbox').addEventListener('click', function () {
+                document.getElementById('checkboxMessage').textContent = "";
+            });
+
+            document.getElementById('privacyCheckbox').addEventListener('click', function () {
+                document.getElementById('checkboxMessage').textContent = "";
+            });
+
+            document.getElementById('agreeButton').addEventListener('click', function () {
+                var termsCheckbox = document.getElementById('termsCheckbox');
+                var privacyCheckbox = document.getElementById('privacyCheckbox');
+                var checkboxMessage = document.getElementById('checkboxMessage');
+
+                if (termsCheckbox.checked && privacyCheckbox.checked) {
+                    document.querySelector('form').submit(); // Submit the form if both checkboxes are checked
+                } else {
+                    checkboxMessage.textContent = "Please agree to both the Terms and Conditions and Privacy Policy.";
+                }
+            });
+            document.getElementById('closeModalButton').addEventListener('click', closeModal);
+
+        });
+    </script>
+    <script>
+        function togglePasswordVisibility(passwordId, eyeIconId) {
+            var passwordInput = document.getElementById(passwordId);
+            var eyeIcon = document.getElementById(eyeIconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            }
+        }
+    </script>
+
+
+
+</body>
+
+</html>

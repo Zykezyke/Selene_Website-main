@@ -1,0 +1,212 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model Order
+@{
+    decimal total = 0;
+    decimal additionalPrice = 0;
+    foreach (var product in Model.Products)
+    {
+        additionalPrice = product.Product.AdditionalPrices.FirstOrDefault(ap => ap.Size == product.SelectedSize)?.Price ?? 0;
+
+        total += additionalPrice * product.Quantity;
+    }
+}
+<br />
+<br />
+<div class="container">
+    <h1 class="text-color fs-1 fw-bold mr-3 pt-2 pb-2">Order History</h1>
+</div>
+
+<div class="container">
+    <div>
+        <div class="px-5 py-2 mb-5 pb-5">
+            <div class="mt-3">
+                <div class="border-2 border-dark">
+                    <div class="row shadow">
+                        <div class="col order-details-bar">
+                            <p class="fw-bold">Order Details</p>
+                        </div>
+                        <div class="col order-details-bar">
+                            <p class="fw-bold">STATUS: @Model.OrderStatus</p>
+                        </div>
+                    </div>
+                    <div class="row shadow">
+                        <div class="col order-details">
+                            <div class="mt-4">
+                                <p><span class="fw-bold">NAME:</span> @Model.Customer.FirstName @Model.Customer.LastName</p>
+                                <p><span class="fw-bold">EMAIL:</span> @Model.Customer.Email</p>
+                                <p><span class="fw-bold">NUMBER:</span> @Model.Customer.PhoneNumber</p>
+                                <p><span class="fw-bold">ADDRESS:</span> @Model.DeliveryAddress</p>
+                                <p><span class="fw-bold">DATE ORDERED:</span> @Model.Date</p>
+                                <p><span class="fw-bold">PAYMENT METHOD:</span> @Model.PaymentMethod</p>
+                                <p><span class="fw-bold">MODE OF DELIVERY:</span> @Model.DeliveryMode</p>
+                                <p><span class="fw-bold">PAYMENT STATUS:</span> @Model.PaymentStatus</p>
+                            </div>
+                        </div>
+                        <div class="col order-details">
+                            <div class="mt-4">
+                                <table class="order-table2">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Size</th>
+                                        <th>Price</th>
+                                    </tr>
+                                    @foreach (var product in Model.Products)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(product.CustomImagePath))
+                                                {
+                                                    <img src="@product.CustomImagePath" alt="Custom Product Image" width="50" height="50" />
+                                                }
+                                                else if (product.Product.ImagePaths != null && product.Product.ImagePaths.Any())
+                                                {
+                                                    <img src="@product.Product.ImagePaths.First()" alt="Product Image" width="50" height="50" />
+                                                }
+                                                else
+                                                {
+                                                    <span>No image available</span>
+                                                }
+                                                <span class="fw-bold">@product.Product.ProductName</span>
+                                            </td>
+                                            <td>@product.SelectedSize (@product.Quantity)</td>
+                                            <td>₱@additionalPrice</td>
+                                        </tr>
+                                    }
+
+                                    <tr class="total mb-4">
+                                        <th>Total Price: </th>
+                                        <th></th>
+                                        <th>₱@total</th>
+                                    </tr>
+                                   
+                                </table>
+                            </div>
+                            @if (@Model.OrderStatus == OrderStatus.Pending)
+                            {
+                                <form asp-controller="User" asp-action="CancelOrder" method="post">
+                                    <input type="hidden" name="orderId" value="@Model.OrderNumber" />
+                                    <center><button type="submit" class="btn-danger hero2-btn m-3">Cancel Order</button></center>
+                                    <br />
+                                </form>
+                            }
+                            else if (@Model.OrderStatus == OrderStatus.Completed || @Model.OrderStatus == OrderStatus.Cancelled)
+                            {
+                                <form asp-controller="User" asp-action="DeleteOrder" method="post">
+                                    <input type="hidden" name="orderId" value="@Model.OrderNumber" />
+                                    <button type="submit" class="btn-danger hero2-btn m-3">Delete Order</button>
+                                </form>
+                            }
+                            else if (@Model.OrderStatus == OrderStatus.Accepted)
+                            {
+
+                                @if (!string.IsNullOrEmpty(@Model.UploadedImagePath))
+                                {
+                                    <center><small class="fw-bold">Proof of Payment</small></center>
+                                    <div class="text-center">
+                                        <img src="@Model.UploadedImagePath" alt="Uploaded Image" class="img-fluid mt-3 upload-preview"  />
+                                    </div>
+                                }
+                                else
+                                {
+                                    
+                                    <form asp-controller="User" asp-action="UploadImage" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" name="orderId" value="@Model.OrderNumber" />
+                                        <div class="mb-3 input-upload">
+                                            <center><label for="input-upload" class="proofpaymentbtn">Upload Proof of payment  <i class="fa-solid fa-upload"></i></label></center>
+                                            <input type="file" name="image" id="input-upload" accept="image/*" data-order="@Model.OrderNumber" onchange="previewImage(event)">
+                                        </div>
+                                        <div class="text-center mt-3">
+                                            <center><img id="imagePreview_@Model.OrderNumber" src="#" alt="Image Preview" style="display: none;" class="img-fluid upload-preview" /></center>
+                                        </div>
+                                        <div class="text-end">
+                                            <center><button type="submit" class="uploadbtn">Upload</button></center>
+                                        </div>
+                                    </form>
+                                     <div>
+                                                            <center>
+                                                                @{
+                                                                    var imagePath = Model.PaymentMethod == "PayMaya" ? "/images/qr1.png" : "/images/qr2.png";
+                                                                }
+                                            <img src="@Url.Content(imagePath)" alt="QR Image" width="500" height="624" class="img-fluid upload-preview" />
+                                                            </center>
+                                                         </div>
+                                }
+
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            var orderId = event.target.dataset.order;
+            var reader = new FileReader();
+            reader.onload = function () {
+                var imagePreview = document.getElementById('imagePreview_' + orderId);
+                imagePreview.src = reader.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+}
+
+
+@* <div class="container mt-5">
+        <div class="mt-5">
+            <div class="border border-2 border-dark px-5 py-2 mb-5 pb-5">
+                <p class="fs-1 fw-bold text-center">ORDER DETAILS</p>
+                <div class="mt-3">
+                    <div class="border-2 border-dark">
+                        <div class="row">
+                            <div class="col-4">
+                                <p class="fs-5 badge bg-secondary">ORDER #@Model.OrderNumber</p>
+                                <div class="mt-4">
+                                    <p><span class="fw-bold">DATE ORDERED:</span> @Model.Date</p>
+                                    <p><span class="fw-bold">NAME:</span> @Model.Customer.FirstName</p>
+                                    <p><span class="fw-bold">NUMBER:</span> @Model.Customer.PhoneNumber</p>
+                                    <p><span class="fw-bold">EMAIL:</span> @Model.Customer.Email</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="pt-4"></div>
+                                <div class="mt-5">
+                                    <p class="mt-5"><span class="fw-bold">ADDRESS:</span> @Model.DeliveryAddress</p>
+                                    <p><span class="fw-bold">PAYMENT METHOD:</span> @Model.PaymentMethod</p>
+                                    <p><span class="fw-bold">PAYMENT STATUS:</span> @Model.PaymentStatus</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="pt-4"></div>
+                                <div class="mt-5">
+                                    <p class="mt-5"><span class="fw-bold">ORDERS:</span></p>
+                                @foreach (var product in Model.Products)
+                                {
+                                    <div>
+                                        @if (product.Product.ImagePaths != null && product.Product.ImagePaths.Any())
+                                        {
+                                            <img src="@product.Product.ImagePaths.First()" alt="Product Image" width="50" height="50" />
+                                        }
+                                        <span class="fw-bold">@product.Product.ProductName</span> | Size: @product.SelectedSize x @product.Quantity
+                                    </div>
+                                }
+                                    <p class="fs-4 text-end">
+                                        TOTAL <span class="fs-2 text-danger fw-bold">₱ @total</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div> *@
