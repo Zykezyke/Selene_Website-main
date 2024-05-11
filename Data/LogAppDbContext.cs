@@ -129,18 +129,13 @@ namespace SELENE_STUDIO.Data
                 UserId = "1"
             });
 
-            TimeZoneInfo phTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-
-            DateTime phTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, phTimeZone);
-
-
             var notepadProduct = new Product
             {
                 ProductID = 1,
                 ProductName = "Notepad",
                 ProductCategory = Category.Notepad,
                 ProductDescription = "Introducing our sleek notepad, your go-to companion for jotting down thoughts, ideas, and lists on the fly. With premium paper and a durable cover, it's perfect for professionals, students, and creatives alike. Get organized and stay stylish with our Notepad today. 50 sheets printed in an 80 gsm fsc certified paper to ensure responsibility and sustainability.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {
@@ -180,7 +175,7 @@ namespace SELENE_STUDIO.Data
                 ProductName = "Sticker",
                 ProductCategory = Category.Sticker,
                 ProductDescription = "Introducing our Customized Stickers - where creativity meets convenience. Tailored to your unique style, these stickers add a personal touch to any surface. Perfect for labeling, decorating, or branding, make a lasting impression with our customizable stickers. High quality stickers printed in waterproof vinyl sticker papers.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {
@@ -218,7 +213,7 @@ namespace SELENE_STUDIO.Data
                 ProductName = "Notebook",
                 ProductCategory = Category.Notebook,
                 ProductDescription = "Introducing our Customized Notepad - the perfect blend of style and functionality. Tailored to your preferences, it's a personalized solution for all your note-taking needs. Whether for business or pleasure, make a statement with every jot and scribble. Available in hard cover with 50 sheets printed in an 80 gsm fsc certified paper and binded in a coiled spring.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {
@@ -254,7 +249,7 @@ namespace SELENE_STUDIO.Data
                 ProductName = "Thank You Card",
                 ProductCategory = Category.ThankYouCard,
                 ProductDescription = "Elevate your gratitude with our Customized Thank You Cards. Tailored to reflect your personal touch, these cards are perfect for expressing appreciation in style. Whether for weddings, birthdays, or business, make every 'thank you' memorable with our customizable cards.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {
@@ -291,7 +286,7 @@ namespace SELENE_STUDIO.Data
                 ProductName = "Cupcake Topper",
                 ProductCategory = Category.CupcakeTopper,
                 ProductDescription = "Introducing our Custom Cupcake Toppers – the perfect way to add a personalized touch to your sweet treats. Tailored to your theme or occasion, these toppers elevate cupcakes for birthdays, weddings, or any celebration. With customizable designs and durable materials, make your desserts stand out with our bespoke cupcake toppers.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {
@@ -327,7 +322,7 @@ namespace SELENE_STUDIO.Data
                 ProductName = "Business Card",
                 ProductCategory = Category.BusinessCard,
                 ProductDescription = "Introducing our Business Cards - your key to making a lasting impression. Sleek, professional, and customizable to reflect your brand identity, these cards are perfect for networking and leaving a memorable mark. With premium materials and attention to detail, elevate your business image with our bespoke business cards.",
-                DateCreated = phTime,
+                DateCreated = DateTime.UtcNow,
                 isHidden = false,
                 ImagePaths = new List<string>
     {

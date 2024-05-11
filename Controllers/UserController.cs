@@ -598,7 +598,7 @@ namespace SELENE_STUDIO.Controllers {
             {
                 Customer = user,
                 Products = cart.Products,
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow,
                 OrderStatus = OrderStatus.Pending,
                 TotalPrice = totalPrice,
                 DeliveryAddress = Request.Form["address"],

@@ -407,7 +407,7 @@ public IActionResult ViewConversations(int page = 1, int pageSize = 10)
         {
             if (ModelState.IsValid)
             {
-                product.DateCreated = DateTime.Now;
+                product.DateCreated = DateTime.UtcNow;
 
                 product.isHidden = false;
                 // Check if at least one file is uploaded

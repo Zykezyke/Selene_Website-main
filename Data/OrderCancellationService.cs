@@ -22,7 +22,7 @@ public class OrderCancellationService
         using var scope = _serviceScopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<LogAppDbContext>();
 
-        var currentTime = DateTime.Now;
+        var currentTime = DateTime.UtcNow;
 
         // Orders in "Accepted" state with pending payment and without proof of payment
         var ordersToCancelAccepted = await dbContext.Orders
